@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test specifications - Team Chat with Copilot</title><style>
+:root{--text:#111827;--muted:#4b5563;--accent:#1d4ed8;--border:#d1d5db;--panel:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,"Segoe UI",sans-serif;color:var(--text)}
+a{color:var(--accent)}a:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#000;color:#fff;padding:6px 10px}
+header.site{background:#0f172a;color:#fff;padding:12px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.site a{color:#fff;text-decoration:none}header.site .brand{font-weight:700;font-size:1.1rem}
+header.site nav a{margin-right:14px;opacity:.9}header.site nav a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:20px}
+aside.side{font-size:.92rem;position:sticky;top:12px;align-self:start}
+aside.side h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+aside.side ul{list-style:none;margin:0 0 16px;padding:0}aside.side li a{display:block;padding:4px 8px;border-radius:6px;text-decoration:none}
+aside.side li a[aria-current=page]{background:var(--panel);font-weight:700}
+main{min-width:0}main h1{margin-top:0}
+main table{border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
+main th,main td{border:1px solid var(--border);padding:6px 10px;vertical-align:top;font-size:.93rem}
+main th{background:var(--panel);text-align:left}
+main blockquote{margin:12px 0;padding:8px 16px;border-left:4px solid var(--accent);background:#eff6ff}
+main code{background:var(--panel);padding:1px 5px;border-radius:4px;font-size:.9em}
+main pre{background:#0f172a;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto}
+main pre code{background:none;color:inherit;padding:0}
+pre.mermaid{background:#fff;color:var(--text);border:1px solid var(--border);text-align:center}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px}
+.hero h1{color:#fff;font-size:2rem;margin:0 0 8px}.hero p{max-width:60ch;color:#dbeafe}
+.hero a.btn{display:inline-block;background:#fff;color:#0f172a;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px}.card h3{margin:0 0 6px;font-size:1.02rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+footer{max-width:1280px;margin:0 auto;padding:20px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}aside.side{position:static}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site"><a class="brand" href="index.html">Team Chat with Copilot</a>
+<nav aria-label="Main"><a href="index.html">Overview</a><a href="chatapp.requirements.html">Requirements</a>
+<a href="chatapp.archspecs.html">Architecture</a><a href="https://github.com/RaghunathLaxmiPathi/team-chat-copilot">Source code</a></nav></header>
+<div class="layout"><aside class="side" aria-label="Documents"><h2>Project</h2><ul><li><a href="index.html">Overview</a></li></ul><h2>Design documents</h2><ul><li><a href="chatapp.assumptions.html">Assumptions</a></li><li><a href="chatapp.assumptions.gao.html">Assumptions critique</a></li><li><a href="chatapp.requirements.html">Requirements</a></li><li><a href="chatapp.requirements.gao.html">Requirements critique</a></li><li><a href="chatapp.funcspecs.html">Functional specifications</a></li><li><a href="chatapp.funcspecs.gao.html">Functional specifications critique</a></li><li><a href="chatapp.archspecs.html">Architecture specifications</a></li><li><a href="chatapp.archspecs.gao.html">Architecture critique</a></li><li><a href="chatapp.testspecs.html" aria-current="page">Test specifications</a></li><li><a href="chatapp.testspecs.gao.html">Test specifications critique</a></li><li><a href="chatapp.implementation.gao.html">Implementation critique</a></li></ul></aside><main id="content"><h1 id="team-chat-application-test-specifications">Team Chat Application: Test Specifications</h1>
+<p>Date: 2026-11-11
+Sources: <a href="chatapp.requirements.html">chatapp.requirements.md</a>, <a href="chatapp.funcspecs.html">chatapp.funcspecs.md</a>, <a href="chatapp.archspecs.html">chatapp.archspecs.md</a></p>
+<blockquote>
+<p><strong>Status at a glance</strong>
+71 automated test cases and 3 manual checks. Every test traces to a requirement. The automated tests run the real service in memory with a temporary database and need no other software. Requirements that cannot be tested in a local lab are listed in section 6 with the reason.</p>
+</blockquote>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-approach-and-environment">Approach and environment</a></li>
+<li><a href="#2-how-to-run">How to run</a></li>
+<li><a href="#3-automated-test-cases">Automated test cases</a></li>
+<li><a href="#4-service-level-objective-tests">Service level objective tests</a></li>
+<li><a href="#5-manual-checks">Manual checks</a></li>
+<li><a href="#6-coverage-and-gaps">Coverage and gaps</a></li>
+</ol>
+<hr />
+<h2 id="1-approach-and-environment">1. Approach and environment</h2>
+<ul>
+<li><strong>Level:</strong> tests call the real HTTP routes and the real WebSocket through FastAPI's test client. Each test gets a fresh service with a temporary database and attachment folder, so tests never depend on each other.</li>
+<li><strong>Time:</strong> where the rules depend on time (session expiry, retention, windows), the test changes the settings or the clock the code reads. It does not wait.</li>
+<li><strong>Users:</strong> a helper creates an administrator and members and returns signed-in clients, so each test reads as a story.</li>
+<li><strong>Negative paths first:</strong> every rule that protects data (membership, deletion, deactivation) has a test that shows the refusal, not only the success.</li>
+<li><strong>Evidence:</strong> a test passes only when the response and the stored data both match. For example, a deletion test checks the response, the stored row, the search index, and the file on disk.</li>
+</ul>
+<h2 id="2-how-to-run">2. How to run</h2>
+<p>From the <code>chatapp/</code> folder, after the setup in the README:</p>
+<pre><code>python -m pytest -q
+</code></pre>
+<p>The browser-rendering tests (T-40 to T-43) use Node.js, which is already installed on this machine. They are skipped automatically if Node.js is not available.</p>
+<h2 id="3-automated-test-cases">3. Automated test cases</h2>
+<p>Test files are in <code>chatapp/tests/</code>. The "File" column names the file that holds each case.</p>
+<h3 id="31-sign-in-users-and-administration">3.1 Sign-in, users, and administration</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-01</td>
+<td>Sign in and read own profile</td>
+<td>FR-01</td>
+<td>Sign in as a seeded member. Call <code>/me</code> with the token.</td>
+<td>200 with a token and expiry. <code>/me</code> returns the same user.</td>
+<td>test_auth_users.py</td>
+</tr>
+<tr>
+<td>T-02</td>
+<td>Unknown and deactivated users cannot sign in, with the same answer</td>
+<td>FR-02</td>
+<td>Sign in with an unknown name. Deactivate a user, then sign in as them.</td>
+<td>Both give 401 with identical text.</td>
+<td>test_auth_users.py</td>
+</tr>
+<tr>
+<td>T-03</td>
+<td>Bad, missing, tampered, and expired tokens are refused</td>
+<td>SEC-09</td>
+<td>Call <code>/me</code> with no token, a random token, a token with one changed character, and a token with a past expiry.</td>
+<td>401 <code>unauthorized</code> each time.</td>
+<td>test_auth_users.py</td>
+</tr>
+<tr>
+<td>T-04</td>
+<td>Administrators create users, and others cannot</td>
+<td>FR-03, SEC-05</td>
+<td>As administrator create a user. As a member try the same. Create a duplicate. Create with a bad name.</td>
+<td>201, then 403, 409, and 400.</td>
+<td>test_auth_users.py</td>
+</tr>
+<tr>
+<td>T-05</td>
+<td>At least two administrators always remain</td>
+<td>FR-03</td>
+<td>Demote one of two administrators. Deactivate one of two.</td>
+<td>Both refused with 409. With three administrators, one change succeeds.</td>
+<td>test_auth_users.py</td>
+</tr>
+<tr>
+<td>T-06</td>
+<td>Deactivation takes effect at once</td>
+<td>FR-04, SEC-09</td>
+<td>Sign in a member, join a group chat and a direct message, then deactivate them. Use the old token.</td>
+<td>The old token gives 401 on the next call. They are out of the group chat. The direct message remains for the other person.</td>
+<td>test_auth_users.py</td>
+</tr>
+<tr>
+<td>T-07</td>
+<td>Deactivated authors show as former members</td>
+<td>FR-05</td>
+<td>Deactivate an author, then read their old messages as another member.</td>
+<td>Messages remain. <code>sender_status</code> is <code>deactivated</code>.</td>
+<td>test_auth_users.py</td>
+</tr>
+<tr>
+<td>T-08</td>
+<td>A member cannot deactivate or change roles</td>
+<td>SEC-03</td>
+<td>As a member call deactivate and role change.</td>
+<td>403 for both.</td>
+<td>test_auth_users.py</td>
+</tr>
+<tr>
+<td>T-09</td>
+<td>Start-up creates at least two administrators and refuses fewer</td>
+<td>FR-03</td>
+<td>Start the service with one configured administrator.</td>
+<td>The service refuses to start. With two it starts.</td>
+<td>test_auth_users.py</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-conversations-and-membership">3.2 Conversations and membership</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-10</td>
+<td>Direct message is one per pair</td>
+<td>FR-10</td>
+<td>Start a direct message A to B. Start it again from B to A. Start one with yourself or an unknown user.</td>
+<td>First 201. Repeat 200 with the same conversation. Others 400.</td>
+<td>test_conversations.py</td>
+</tr>
+<tr>
+<td>T-11</td>
+<td>Group chat rules and limits</td>
+<td>FR-11, FR-13</td>
+<td>Create with 0 others (fail), 1 other, 19 others. Add a 20th member. Add a 21st.</td>
+<td>Fails with 400, then 201, 201, 200, 409.</td>
+<td>test_conversations.py</td>
+</tr>
+<tr>
+<td>T-12</td>
+<td>Concurrent sends get unique, gap-free numbers</td>
+<td>FR-41, D-01</td>
+<td>From several members send 100 messages at once. Read them back.</td>
+<td>Numbers run 1 to 100 with no gaps and no repeats.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-13</td>
+<td>Channel rules</td>
+<td>FR-12</td>
+<td>A member tries to create a channel. An administrator creates one. Reuse the name in a different case. Add up to 100 members.</td>
+<td>403, then 201, then 409. The 101st member is refused with 409.</td>
+<td>test_conversations.py</td>
+</tr>
+<tr>
+<td>T-14</td>
+<td>Non-members and missing conversations look the same</td>
+<td>FR-16, SEC-03</td>
+<td>A non-member requests a conversation, its messages, its thread, an attachment, and its search results. Request an unknown ID.</td>
+<td>Every case gives 404 with the same body shape. Search returns nothing from it.</td>
+<td>test_conversations.py</td>
+</tr>
+<tr>
+<td>T-15</td>
+<td>Removal stops access at once</td>
+<td>FR-14</td>
+<td>Remove a member from a group. They request the conversation and messages.</td>
+<td>404. The real-time channel stops delivering for it (see T-55).</td>
+<td>test_conversations.py</td>
+</tr>
+<tr>
+<td>T-16</td>
+<td>History visibility for group and channel members</td>
+<td>FR-15</td>
+<td>In a group, send messages, then add a new member and send more. Remove and re-add them, with messages in between. In a channel do the same.</td>
+<td>A group member sees from their first join, minus the gap. A channel member sees everything.</td>
+<td>test_conversations.py</td>
+</tr>
+<tr>
+<td>T-17</td>
+<td>Direct messages with a deactivated person</td>
+<td>FR-04, A-19</td>
+<td>Deactivate B. A reads the direct message and tries to send.</td>
+<td>A can read. Sending gives 409 <code>conversation_closed</code>.</td>
+<td>test_conversations.py</td>
+</tr>
+<tr>
+<td>T-18</td>
+<td>Leaving and role rules for members</td>
+<td>FR-13</td>
+<td>A member leaves a group. A member tries to remove another from a channel. An administrator does.</td>
+<td>Leave 204. Remove by member 403. By administrator 204. Direct message leave 400.</td>
+<td>test_conversations.py</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-messages">3.3 Messages</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-20</td>
+<td>Send and validate</td>
+<td>FR-20</td>
+<td>Send valid text, empty text, whitespace only, and 4,001 characters. Send exactly 4,000.</td>
+<td>201 for valid and 4,000. 400 for the others. Text is stored as typed.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-21</td>
+<td>Retry is idempotent</td>
+<td>FR-42</td>
+<td>Send with a client ID twice. Send the same ID to a different conversation.</td>
+<td>Second returns 200 with <code>duplicate</code> true and the same message. One row only. Other conversation gets 409.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-22</td>
+<td>An acknowledged message survives a restart</td>
+<td>FR-43, NFR-02</td>
+<td>Send a message. Discard the service and start a new one on the same files.</td>
+<td>The message is there with the same number.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-23</td>
+<td>Threads</td>
+<td>FR-22</td>
+<td>Reply to a message. Reply to the reply. Reply to a message in another conversation. Fetch the thread.</td>
+<td>Replies point to the original. Cross-conversation reply 400. The thread shows root and replies in order.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-24</td>
+<td>Mentions and notifications</td>
+<td>FR-23, FR-26</td>
+<td>Mention a member, a non-member, and an unknown name. Read notifications.</td>
+<td>Only the member gets a <code>mention</code> notification. The notification has no message text.</td>
+<td>test_search_notifications.py</td>
+</tr>
+<tr>
+<td>T-25</td>
+<td>Rate limit</td>
+<td>FR-46</td>
+<td>Send 30 messages in a minute, then a 31st.</td>
+<td>The 31st gives 429 with <code>Retry-After</code>. Another user is not affected.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-26</td>
+<td>Delete own message</td>
+<td>FR-27, FR-28, FR-29, PRV-01, PRV-02</td>
+<td>Send a message with an attachment and a mention. Delete it. Have replies in place.</td>
+<td>204. The message reads as deleted with no text. Search does not find it. The file is gone from disk. The mention is removed. Replies remain.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-27</td>
+<td>Only the author can delete</td>
+<td>FR-27</td>
+<td>Another member and an administrator try to delete. The author deletes twice.</td>
+<td>403 for both. 204 each time for the author.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-28</td>
+<td>Paging: before, after, around</td>
+<td>FR-45, NFR-07</td>
+<td>Create 120 messages. Request the newest page, before a number, after a number, and around a number. Combine two cursors.</td>
+<td>Pages hold at most 50 in ascending order. Flags are correct. Around gives up to 25 on each side. Two cursors give 400.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-29</td>
+<td>Unread counts and read position</td>
+<td>FR-47</td>
+<td>Send messages from B to A. Check A's list. Mark read. Try to move backward.</td>
+<td>Unread rises, then drops to zero. The position never moves back.</td>
+<td>test_messages.py</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-attachments">3.4 Attachments</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-30</td>
+<td>Upload, send, and download</td>
+<td>FR-24</td>
+<td>Upload a small PDF. Send it in a message. Download as a member.</td>
+<td>201, then the message lists it, then the bytes match. Download is an attachment with <code>nosniff</code>.</td>
+<td>test_attachments.py</td>
+</tr>
+<tr>
+<td>T-31</td>
+<td>Size and type limits</td>
+<td>FR-24, SEC-08</td>
+<td>Upload a file above the limit (limit lowered for the test) and a <code>.exe</code>. Upload a file named with path parts.</td>
+<td>413 and 415. The stored name is generated, never the user's name.</td>
+<td>test_attachments.py</td>
+</tr>
+<tr>
+<td>T-32</td>
+<td>Only members can upload or open</td>
+<td>FR-24, SEC-03</td>
+<td>A non-member uploads to the conversation and downloads an attachment.</td>
+<td>404 for both.</td>
+<td>test_attachments.py</td>
+</tr>
+<tr>
+<td>T-33</td>
+<td>Attachment attach rules</td>
+<td>FR-24</td>
+<td>Send with 6 attachments. Send using another person's upload. Send using an upload from another conversation. Reuse an already sent upload.</td>
+<td>400 in every case.</td>
+<td>test_attachments.py</td>
+</tr>
+<tr>
+<td>T-34</td>
+<td>Unsent uploads are removed after an hour</td>
+<td>FR-24</td>
+<td>Upload but do not send. Advance the clock by an hour and run the cleanup.</td>
+<td>The file and row are gone.</td>
+<td>test_attachments.py</td>
+</tr>
+<tr>
+<td>T-35</td>
+<td>The scanner can reject a file</td>
+<td>FR-24, SEC-08</td>
+<td>Use a scanner that rejects one file.</td>
+<td>The upload is refused with 400 and nothing is stored on disk or in the database.</td>
+<td>test_attachments.py</td>
+</tr>
+</tbody>
+</table>
+<h3 id="35-search-and-notifications">3.5 Search and notifications</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-36</td>
+<td>Search is limited to what the user may see</td>
+<td>FR-25, PRV-02</td>
+<td>Send matching text in a shared conversation, a private one, a group before the user joined, and a deleted message. Search as the user.</td>
+<td>Only the shared and post-join messages appear.</td>
+<td>test_search_notifications.py</td>
+</tr>
+<tr>
+<td>T-37</td>
+<td>Search input is safe</td>
+<td>FR-25</td>
+<td>Search with quotes, <code>*</code>, <code>AND</code>, <code>OR</code>, <code>NEAR</code>, a one-character query, and 101 characters.</td>
+<td>No error from the search engine. 400 for bad length. Words are matched as plain words.</td>
+<td>test_search_notifications.py</td>
+</tr>
+<tr>
+<td>T-38</td>
+<td>Notification list and read</td>
+<td>FR-26</td>
+<td>List, mark one read, mark another person's notification.</td>
+<td>Count falls. The other person's gives 404.</td>
+<td>test_search_notifications.py</td>
+</tr>
+<tr>
+<td>T-39</td>
+<td>Added-to-conversation notification</td>
+<td>FR-26</td>
+<td>Add a member to a group.</td>
+<td>They get an <code>added</code> notification and, when offline, an outbox entry with no message text.</td>
+<td>test_search_notifications.py</td>
+</tr>
+</tbody>
+</table>
+<h3 id="36-message-rendering-and-browser-safety">3.6 Message rendering and browser safety</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-40</td>
+<td>Hostile input is neutralized</td>
+<td>FR-21, SEC-08, D-05</td>
+<td>Render script tags, <code>onerror</code> attributes, <code>javascript:</code> links, nested markup, and broken markdown.</td>
+<td>No output contains a live tag from the input, an event attribute, or a <code>javascript:</code> link.</td>
+<td>test_client_render.py</td>
+</tr>
+<tr>
+<td>T-41</td>
+<td>Supported formatting works</td>
+<td>FR-21</td>
+<td>Render bold, italic, inline code, a code block, a link, line breaks, and mentions.</td>
+<td>The expected safe HTML for each. Plain text is unchanged apart from escaping.</td>
+<td>test_client_render.py</td>
+</tr>
+<tr>
+<td>T-42</td>
+<td>Only http and https links are links</td>
+<td>FR-21</td>
+<td>Render links with <code>http</code>, <code>https</code>, <code>ftp</code>, <code>data</code>, and <code>mailto</code>.</td>
+<td>Only <code>http</code> and <code>https</code> become links, and they carry <code>rel="noopener noreferrer"</code> and <code>target="_blank"</code>.</td>
+<td>test_client_render.py</td>
+</tr>
+<tr>
+<td>T-43</td>
+<td>Security headers are present</td>
+<td>SEC-08, DD-10</td>
+<td>Request the page and an API response.</td>
+<td>A content security policy, <code>nosniff</code>, <code>no-referrer</code>, and <code>frame-ancestors 'none'</code> are present.</td>
+<td>test_slo_ops.py</td>
+</tr>
+</tbody>
+</table>
+<h3 id="37-real-time-delivery">3.7 Real-time delivery</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-50</td>
+<td>Connect rules</td>
+<td>FR-40, SEC-09</td>
+<td>Connect with a valid token, an invalid token, and a deactivated user's token.</td>
+<td><code>hello</code> for the valid one. Close 4401 for invalid. Close 4403 for deactivated.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-51</td>
+<td>New messages are pushed</td>
+<td>FR-40</td>
+<td>Two members connect. One sends. A non-member is also connected.</td>
+<td>The other member gets the message frame. The non-member gets nothing.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-52</td>
+<td>The sender's other devices get the message</td>
+<td>FR-40, UC-07</td>
+<td>The sender has two connections.</td>
+<td>Both receive the message.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-53</td>
+<td>Order is the same for everyone</td>
+<td>FR-41</td>
+<td>Two senders send alternately. Two receivers collect.</td>
+<td>Both receivers see the same order, with ascending numbers.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-54</td>
+<td>Resume replays what was missed, in order, in pages</td>
+<td>FR-45, NFR-07</td>
+<td>A member is offline while 120 messages are sent. They connect and resume with their old position.</td>
+<td>Two <code>resume_page</code> frames of at most 50 (the first with <code>has_more</code>), then <code>resume_done</code>. No gaps, no repeats.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-55</td>
+<td>Resume reports deletions made while offline</td>
+<td>FR-27, DD-12</td>
+<td>A member goes offline. Another deletes a message the first holds. The first resumes with its last sync time.</td>
+<td><code>resume_done</code> lists the deleted message.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-56</td>
+<td>Deactivation closes live connections</td>
+<td>FR-04</td>
+<td>Deactivate a connected user.</td>
+<td>The connection closes with 4403 and later connects fail.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-57</td>
+<td>Removal stops delivery</td>
+<td>FR-14</td>
+<td>Remove a connected member from a group. Send a message.</td>
+<td>They get <code>conversation_removed</code> and then nothing more for it.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-58</td>
+<td>Slow client queue overflow</td>
+<td>NFR-07, DD-01</td>
+<td>Use a connection with a tiny queue that never reads. Publish more events than fit.</td>
+<td>That connection closes with 4408. Other connections are unaffected.</td>
+<td>test_realtime.py</td>
+</tr>
+<tr>
+<td>T-59</td>
+<td>Expired sessions are closed</td>
+<td>SEC-09</td>
+<td>Connect with a token that expires soon. Run the sweeper after it expires.</td>
+<td>The connection closes with 4401.</td>
+<td>test_realtime.py</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-service-level-objective-tests">4. Service level objective tests</h2>
+<h3 id="41-measurement-logic-unit-tests">4.1 Measurement logic (unit tests)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-60</td>
+<td>Latency under the targets</td>
+<td>SLO-02, NFR-04</td>
+<td>Connect a recipient who acknowledges every message. Send 500 messages one after another. Read the objectives report.</td>
+<td>The 1-hour window shows samples and P50, P75, P90, P95, and P99 at or below 200, 400, 700, 1,000, and 2,000 ms. The measured values are printed. This is a local test: it checks the service part only, not the network.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-61</td>
+<td>Success Rate counting</td>
+<td>SLO-01</td>
+<td>Record successes, 4xx responses, 5xx responses, and a request over 10 seconds.</td>
+<td>4xx are not counted. 5xx and slow requests are failures. Rate is correct.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-62</td>
+<td>Percentiles come from the right buckets</td>
+<td>SLO-02</td>
+<td>Feed known latencies into the tracker.</td>
+<td>Each percentile equals the upper edge of the bucket where its share is reached.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-63</td>
+<td>Windows are separate</td>
+<td>SLO-01, SLO-02</td>
+<td>Record events at several ages (30 minutes, 5 hours, 10 days).</td>
+<td>The 1-hour, 24-hour, and 28-day windows each include exactly the events inside them.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-64</td>
+<td>Too few samples report "insufficient data"</td>
+<td>SLO-05</td>
+<td>Record 29 requests, then 30. Record 99 latency samples, then 100.</td>
+<td>Status is <code>insufficient_data</code> below the minimum and a value at or above it. No warning is raised from insufficient data.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-65</td>
+<td>Burn-rate warning</td>
+<td>SLO-04</td>
+<td>Make the 1-hour rate fall below 99.9 percent while the 24-hour rate stays within target.</td>
+<td><code>burn_rate_warning</code> is true. It is false when both are within target or both are out.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-66</td>
+<td>Counts survive a restart</td>
+<td>SLO-03, DD-15</td>
+<td>Record events, save, create a new tracker on the same database.</td>
+<td>The new tracker reports the same window values.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-67</td>
+<td>Unconfirmed deliveries count as slow</td>
+<td>SLO-02, DD-13</td>
+<td>Deliver to a recipient that never acknowledges. Run the sweeper after 10 seconds.</td>
+<td>A sample is recorded in the slowest bucket.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-68</td>
+<td>Operational routes are excluded and protected</td>
+<td>OPS-01, F-06</td>
+<td>Call health, readiness, metrics, and objectives as a member and as an administrator.</td>
+<td>Health and readiness are open. Metrics and objectives give 403 to a member. None of these change the request counts.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-69</td>
+<td>Headroom: ten times the expected connections</td>
+<td>NFR-04, A-28</td>
+<td>Register 100 connections (ten times the expected 10) on one channel. Publish 200 messages. Every connection acknowledges.</td>
+<td>Every connection receives all 200 messages in order. No connection is closed. The measured latencies stay within the targets.</td>
+<td>test_slo_ops.py</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-operations-and-privacy">4.2 Operations and privacy</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T-70</td>
+<td>Error shape and correlation ID</td>
+<td>OPS-05, DD-20</td>
+<td>Trigger a 400, 401, 403, 404, 409, and an internal error. Send a request with a good <code>X-Request-ID</code> and one with a bad one.</td>
+<td>Every error has <code>code</code>, <code>message</code>, and <code>request_id</code> that matches the response header. A bad ID is replaced. The internal error leaks nothing.</td>
+<td>test_slo_ops.py</td>
+</tr>
+<tr>
+<td>T-71</td>
+<td>Logs hold no message text or tokens</td>
+<td>PRV-03, DD-21, R-12</td>
+<td>Send a message with a unique marker and an attachment with a marker in its name. Connect a real-time client with a token in the address. Capture all logs.</td>
+<td>None of the markers and no token appears in any log line, including the access lines for the real-time address.</td>
+<td>test_privacy_retention.py</td>
+</tr>
+<tr>
+<td>T-72</td>
+<td>Audit records</td>
+<td>SEC-05, DD-19</td>
+<td>Create and deactivate a user. Add and remove members. Create a channel.</td>
+<td>One audit row per action with actor, target, and time, and no message content.</td>
+<td>test_privacy_retention.py</td>
+</tr>
+<tr>
+<td>T-73</td>
+<td>No endpoint gives administrators message content</td>
+<td>SEC-04, DD-09</td>
+<td>List every route. For each administrator-only route read its documented response. Call metrics.</td>
+<td>No administrator-only route returns message text.</td>
+<td>test_privacy_retention.py</td>
+</tr>
+<tr>
+<td>T-74</td>
+<td>Retention removes old content, and is off by default</td>
+<td>NFR-05, PRV-01</td>
+<td>With retention off, run the job. Then turn on a 30-day period and age some messages.</td>
+<td>Nothing changes when off. When on, old content, files, and index entries are removed and newer ones stay.</td>
+<td>test_privacy_retention.py</td>
+</tr>
+<tr>
+<td>T-75</td>
+<td>Backup and restore</td>
+<td>NFR-03</td>
+<td>Run the backup while messages are being sent. Open the copy.</td>
+<td>The copy opens and holds a consistent set of messages.</td>
+<td>test_privacy_retention.py</td>
+</tr>
+<tr>
+<td>T-76</td>
+<td>Notifications hold no message text</td>
+<td>PRV-04, A-20</td>
+<td>Send a mention with a unique marker. Read notifications and the outbox rows.</td>
+<td>The marker appears in neither.</td>
+<td>test_privacy_retention.py</td>
+</tr>
+<tr>
+<td>T-77</td>
+<td>A failed send leaves nothing behind</td>
+<td>FR-43, DD-03</td>
+<td>Make a step inside the send transaction fail (for example the notification step). Send.</td>
+<td>An error response. No message row, no mention, no attachment link, and the next send gets the next unused number with no gap.</td>
+<td>test_messages.py</td>
+</tr>
+<tr>
+<td>T-78</td>
+<td>Times are stored in UTC</td>
+<td>FR-30</td>
+<td>Create messages, notifications, and users. Read the stored times and the API times.</td>
+<td>Every time is ISO 8601 in UTC and ends in <code>Z</code>.</td>
+<td>test_messages.py</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-manual-checks">5. Manual checks</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Trace</th>
+<th>Steps</th>
+<th>Expected result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M-01</td>
+<td>Keyboard and screen reader check</td>
+<td>ACC-01 to ACC-03</td>
+<td>Use the page with the keyboard only. Turn on a screen reader. Send and receive messages, open the thread, search, and open notifications.</td>
+<td>Every control is reachable and operable. New messages are announced politely. Focus moves as described in the functional specs, section 9.</td>
+</tr>
+<tr>
+<td>M-02</td>
+<td>Two-browser walk-through</td>
+<td>FR-10 to FR-27, FR-40</td>
+<td>Sign in as two users in two windows. Start a direct message, send, receive, reply, mention, attach, delete, search. Stop the service for a few seconds and start it again.</td>
+<td>The flows work as specified, and the page reconnects and catches up with no duplicates.</td>
+</tr>
+<tr>
+<td>M-03</td>
+<td>Contrast and zoom check</td>
+<td>ACC-01</td>
+<td>Check colors with an accessibility tool. Zoom to 200 percent.</td>
+<td>AA contrast. No content lost or overlapping.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-coverage-and-gaps">6. Coverage and gaps</h2>
+<h3 id="coverage-by-requirement">Coverage by requirement</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement group</th>
+<th>Tests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-01 to FR-06 (users, access)</td>
+<td>T-01 to T-09</td>
+</tr>
+<tr>
+<td>FR-10 to FR-16 (conversations)</td>
+<td>T-10 to T-18</td>
+</tr>
+<tr>
+<td>FR-20 to FR-30 (messaging)</td>
+<td>T-20 to T-29, T-30 to T-39, T-40 to T-42, T-78</td>
+</tr>
+<tr>
+<td>FR-40 to FR-47 (delivery)</td>
+<td>T-21, T-22, T-25, T-28, T-29, T-50 to T-59, T-77</td>
+</tr>
+<tr>
+<td>SLO-01 to SLO-05</td>
+<td>T-60 to T-68</td>
+</tr>
+<tr>
+<td>NFR-02, NFR-03, NFR-04, NFR-05, NFR-06, NFR-07</td>
+<td>T-22, T-75, T-60 and T-69, T-74, this suite, T-28, T-54, T-58</td>
+</tr>
+<tr>
+<td>SEC-03 to SEC-05, SEC-08, SEC-09</td>
+<td>T-03, T-14, T-32, T-72, T-73, T-31, T-40 to T-43, T-59</td>
+</tr>
+<tr>
+<td>PRV-01 to PRV-04</td>
+<td>T-26, T-36, T-71, T-74, T-76</td>
+</tr>
+<tr>
+<td>OPS-01, OPS-05</td>
+<td>T-62 to T-70</td>
+</tr>
+<tr>
+<td>ACC-01 to ACC-03</td>
+<td>M-01, M-03</td>
+</tr>
+</tbody>
+</table>
+<h3 id="not-tested-in-the-lab-with-the-reason">Not tested in the lab, with the reason</h3>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Reason</th>
+<th>How it would be tested in production</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-01 (real Entra ID), SEC-06</td>
+<td>No Entra ID in the lab</td>
+<td>Integration tests against a test tenant, and conditional access checks</td>
+</tr>
+<tr>
+<td>SEC-01, SEC-02</td>
+<td>No TLS or encryption at rest in the lab</td>
+<td>Platform configuration checks and a scan for plain-text endpoints</td>
+</tr>
+<tr>
+<td>SEC-07</td>
+<td>Classification is a document, not behavior</td>
+<td>Review</td>
+</tr>
+<tr>
+<td>NFR-01 (99.9 percent availability)</td>
+<td>Needs weeks of operation on several instances</td>
+<td>The 28-day Success Rate and external availability probes</td>
+</tr>
+<tr>
+<td>NFR-08, OPS-04</td>
+<td>Hosting and deployment automation are not in the lab</td>
+<td>Deployment pipeline tests per environment</td>
+</tr>
+<tr>
+<td>OPS-02, OPS-03</td>
+<td>Alert routing, on-call, and ownership are organizational</td>
+<td>Alert drill and runbook review before launch</td>
+</tr>
+<tr>
+<td>FR-24 malware scanning (real)</td>
+<td>The scanner is a stub</td>
+<td>Test with the standard antivirus test file against the real scanner</td>
+</tr>
+<tr>
+<td>FR-28 (backups)</td>
+<td>No backup retention in the lab</td>
+<td>Backup expiry check after 35 days</td>
+</tr>
+<tr>
+<td>Latency over a real network</td>
+<td>The local test removes the network</td>
+<td>Synthetic client probes and client telemetry</td>
+</tr>
+<tr>
+<td>Full accessibility audit</td>
+<td>A formal audit needs specialist tools and users</td>
+<td>Accessibility Insights in the build plus manual testing with assistive technology</td>
+</tr>
+</tbody>
+</table></main></div>
+<footer>Lab build, not production software. Generated from the markdown documents in the repository by tools/build_site.py.</footer>
+</body></html>

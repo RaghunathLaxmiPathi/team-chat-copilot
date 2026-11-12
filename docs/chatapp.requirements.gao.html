@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Requirements critique - Team Chat with Copilot</title><style>
+:root{--text:#111827;--muted:#4b5563;--accent:#1d4ed8;--border:#d1d5db;--panel:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,"Segoe UI",sans-serif;color:var(--text)}
+a{color:var(--accent)}a:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#000;color:#fff;padding:6px 10px}
+header.site{background:#0f172a;color:#fff;padding:12px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.site a{color:#fff;text-decoration:none}header.site .brand{font-weight:700;font-size:1.1rem}
+header.site nav a{margin-right:14px;opacity:.9}header.site nav a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:20px}
+aside.side{font-size:.92rem;position:sticky;top:12px;align-self:start}
+aside.side h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+aside.side ul{list-style:none;margin:0 0 16px;padding:0}aside.side li a{display:block;padding:4px 8px;border-radius:6px;text-decoration:none}
+aside.side li a[aria-current=page]{background:var(--panel);font-weight:700}
+main{min-width:0}main h1{margin-top:0}
+main table{border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
+main th,main td{border:1px solid var(--border);padding:6px 10px;vertical-align:top;font-size:.93rem}
+main th{background:var(--panel);text-align:left}
+main blockquote{margin:12px 0;padding:8px 16px;border-left:4px solid var(--accent);background:#eff6ff}
+main code{background:var(--panel);padding:1px 5px;border-radius:4px;font-size:.9em}
+main pre{background:#0f172a;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto}
+main pre code{background:none;color:inherit;padding:0}
+pre.mermaid{background:#fff;color:var(--text);border:1px solid var(--border);text-align:center}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px}
+.hero h1{color:#fff;font-size:2rem;margin:0 0 8px}.hero p{max-width:60ch;color:#dbeafe}
+.hero a.btn{display:inline-block;background:#fff;color:#0f172a;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px}.card h3{margin:0 0 6px;font-size:1.02rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+footer{max-width:1280px;margin:0 auto;padding:20px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}aside.side{position:static}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site"><a class="brand" href="index.html">Team Chat with Copilot</a>
+<nav aria-label="Main"><a href="index.html">Overview</a><a href="chatapp.requirements.html">Requirements</a>
+<a href="chatapp.archspecs.html">Architecture</a><a href="https://github.com/RaghunathLaxmiPathi/team-chat-copilot">Source code</a></nav></header>
+<div class="layout"><aside class="side" aria-label="Documents"><h2>Project</h2><ul><li><a href="index.html">Overview</a></li></ul><h2>Design documents</h2><ul><li><a href="chatapp.assumptions.html">Assumptions</a></li><li><a href="chatapp.assumptions.gao.html">Assumptions critique</a></li><li><a href="chatapp.requirements.html">Requirements</a></li><li><a href="chatapp.requirements.gao.html" aria-current="page">Requirements critique</a></li><li><a href="chatapp.funcspecs.html">Functional specifications</a></li><li><a href="chatapp.funcspecs.gao.html">Functional specifications critique</a></li><li><a href="chatapp.archspecs.html">Architecture specifications</a></li><li><a href="chatapp.archspecs.gao.html">Architecture critique</a></li><li><a href="chatapp.testspecs.html">Test specifications</a></li><li><a href="chatapp.testspecs.gao.html">Test specifications critique</a></li><li><a href="chatapp.implementation.gao.html">Implementation critique</a></li></ul></aside><main id="content"><h1 id="requirements-critique-gao">Requirements Critique (GAO)</h1>
+<p>Date: 2026-11-11
+Artifact reviewed: <a href="chatapp.requirements.html">chatapp.requirements.md</a></p>
+<blockquote>
+<p><strong>Status at a glance</strong>
+9 findings: 0 High, 5 Medium, 4 Low. Disposition follows the fixed rule: Medium is Address and Low is Defer. No High findings were found. The 5 Medium findings have been applied to the requirements and are marked Done.</p>
+</blockquote>
+<h2 id="checks-that-came-up-clean">Checks that came up clean</h2>
+<ul>
+<li><strong>Fundamentals coverage:</strong> each Fundamental has at least one requirement: quality (NFR-06), capacity (NFR-04), availability (NFR-01), resiliency (NFR-02, NFR-03), security (SEC-01 to SEC-08), privacy (PRV-01 to PRV-04), accessibility (ACC-01 to ACC-03), supportability (OPS-01 to OPS-05).</li>
+<li><strong>Traceability:</strong> every requirement names an assumption.</li>
+<li><strong>Contradictions with the assumptions:</strong> none found. The one inherited conflict (plain text only vs markdown, G-18) is flagged as an open item.</li>
+</ul>
+<h2 id="medium-severity">Medium severity</h2>
+<h3 id="r-01-latency-slo-does-not-say-what-happens-for-offline-recipients">R-01: Latency SLO does not say what happens for offline recipients</h3>
+<ul>
+<li><strong>Description:</strong> SLO-02 measures server receive to the recipient client's confirmation. It does not say whether recipients who are offline are counted. It also does not say what happens when a client confirms late because of a slow device or network.</li>
+<li><strong>Why it matters:</strong> If offline deliveries count, the SLO measures the user's connectivity, not the service. If they are silently dropped, nobody can tell. The test and the metric will each make a different guess.</li>
+<li><strong>Recommended action:</strong> State that only deliveries to recipients with an open connection at send time are measured. Deliveries to offline users are covered by the catch-up requirement FR-45, not by SLO-02.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="r-02-does-not-answer-in-the-success-rate-slo-has-no-timeout">R-02: "Does not answer" in the Success Rate SLO has no timeout</h3>
+<ul>
+<li><strong>Description:</strong> SLO-01 counts a request as failed if the service "does not answer", with no time limit. It also does not say whether the real-time connection (connect, resume) counts as a request.</li>
+<li><strong>Why it matters:</strong> Without a timeout, slow requests are not failures, and the measurement can look healthy while users wait. Excluding the real-time connection leaves the core feature outside the SLO.</li>
+<li><strong>Recommended action:</strong> Define a timeout (for example 10 seconds) after which a request is a failure. State that a failed real-time connection attempt or a resume that errors counts as a failed request.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="r-03-no-minimum-sample-size-for-the-percentiles-and-rates">R-03: No minimum sample size for the percentiles and rates</h3>
+<ul>
+<li><strong>Description:</strong> The requirements note that the 1-hour window holds about 100 requests, but do not say what to report when there are too few samples. With 100 samples, P99 is one sample.</li>
+<li><strong>Why it matters:</strong> The SLO endpoint can show a false breach or a false pass. People will stop trusting it.</li>
+<li><strong>Recommended action:</strong> Require a minimum sample count per window (for example 100 for P99, 30 for P95). Below that, report "insufficient data" rather than a value.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="r-04-re-added-group-members-have-no-defined-visibility">R-04: Re-added group members have no defined visibility</h3>
+<ul>
+<li><strong>Description:</strong> FR-15 says a person added to a group chat sees only messages sent after they joined. It does not cover a person who is removed and later re-added.</li>
+<li><strong>Why it matters:</strong> The answer decides what a person can read after being removed, which is a privacy decision. Engineers will choose differently in different places.</li>
+<li><strong>Recommended action:</strong> State that a re-added member sees messages from their original join point and messages after the re-add, but not those sent while removed.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="r-05-no-session-lifetime-requirement">R-05: No session lifetime requirement</h3>
+<ul>
+<li><strong>Description:</strong> FR-01 and SEC-06 cover sign-in, but nothing says how long a signed-in session lasts or how it is renewed.</li>
+<li><strong>Why it matters:</strong> A long-lived session on a shared or lost device exposes sensitive chats. FR-04 requires immediate access removal, which also depends on how sessions are checked.</li>
+<li><strong>Recommended action:</strong> Add a requirement for a maximum session lifetime (for example 8 hours) and for the server to re-check that the user is still active on every request and real-time connection.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h2 id="low-severity">Low severity</h2>
+<h3 id="r-06-rate-limit-refusals-are-invisible-to-the-slos">R-06: Rate-limit refusals are invisible to the SLOs</h3>
+<ul>
+<li><strong>Description:</strong> FR-46 refusals return a 4xx response, which SLO-01 excludes. If the limit is set too low, real users are refused and no SLO shows it.</li>
+<li><strong>Why it matters:</strong> A minor blind spot at this scale. The assumption (A-31) fixes the limit at 30 a minute, which is generous for 10 people.</li>
+<li><strong>Recommended action:</strong> Track refusal counts as a metric. No requirement change needed now.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h3 id="r-07-the-10-times-headroom-in-nfr-04-has-no-assumption-behind-it">R-07: The 10 times headroom in NFR-04 has no assumption behind it</h3>
+<ul>
+<li><strong>Description:</strong> NFR-04 asks for 10 times headroom. The assumptions give the load but no growth factor.</li>
+<li><strong>Why it matters:</strong> It is a reasonable guess, but it is not traceable. Growth is an open question in the assumptions.</li>
+<li><strong>Recommended action:</strong> Keep it as a proposal and confirm it when growth is answered.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h3 id="r-08-partial-is-used-in-the-lab-column-but-not-defined">R-08: "Partial" is used in the Lab column but not defined</h3>
+<ul>
+<li><strong>Description:</strong> The legend defines Yes, Stub, and No. NFR-01 uses "Partial".</li>
+<li><strong>Why it matters:</strong> Minor inconsistency in the document.</li>
+<li><strong>Recommended action:</strong> Use "Stub" or add "Partial" to the legend.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h3 id="r-09-small-limits-are-missing">R-09: Small limits are missing</h3>
+<ul>
+<li><strong>Description:</strong> There is no limit on the number of attachments per message, on username format, or on search result size.</li>
+<li><strong>Why it matters:</strong> These are small edge cases. Sensible defaults will do for now.</li>
+<li><strong>Recommended action:</strong> Set defaults in the functional specs.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Severity</th>
+<th>Disposition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R-01</td>
+<td>Latency SLO does not say what happens for offline recipients</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>R-02</td>
+<td>"Does not answer" in the Success Rate SLO has no timeout</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>R-03</td>
+<td>No minimum sample size for the percentiles and rates</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>R-04</td>
+<td>Re-added group members have no defined visibility</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>R-05</td>
+<td>No session lifetime requirement</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>R-06</td>
+<td>Rate-limit refusals are invisible to the SLOs</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+<tr>
+<td>R-07</td>
+<td>The 10 times headroom in NFR-04 has no assumption behind it</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+<tr>
+<td>R-08</td>
+<td>"Partial" is used in the Lab column but not defined</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+<tr>
+<td>R-09</td>
+<td>Small limits are missing</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+</tbody>
+</table></main></div>
+<footer>Lab build, not production software. Generated from the markdown documents in the repository by tools/build_site.py.</footer>
+</body></html>

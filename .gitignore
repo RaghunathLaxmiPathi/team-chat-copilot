@@ -1,0 +1,15 @@
+# Virtual environments and caches
+chatapp/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+
+# Local runtime data: chat database, uploaded files, and the sign-in signing key. Never commit these.
+chatapp/data/
+*.db
+*.db-shm
+*.db-wal
+secret.key
+.env
+*.env

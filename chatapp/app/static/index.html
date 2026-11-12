@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team Chat</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#messages-region">Skip to messages</a>
+  <div id="live" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="alert" class="visually-hidden" role="alert"></div>
+
+  <!-- Sign-in (lab: stands in for Entra ID) -->
+  <main id="login-view" class="login">
+    <h1>Team Chat</h1>
+    <form id="login-form">
+      <label for="login-username">User name</label>
+      <input id="login-username" name="chat-user" autocomplete="off" required>
+      <button type="submit">Sign in</button>
+      <p id="login-error" class="error" hidden></p>
+      <p class="hint">Lab sign-in. Try alice, bob, carol, or the administrators admin1 and admin2.</p>
+    </form>
+  </main>
+
+  <div id="app-view" class="app" hidden>
+    <header class="topbar">
+      <h1>Team Chat</h1>
+      <div id="connection-banner" class="banner" hidden>Reconnecting...</div>
+      <div class="topbar-actions">
+        <span id="whoami"></span>
+        <label class="toggle"><input type="checkbox" id="copilot-toggle"> Copilot replies to everything I write</label>
+        <label class="toggle"><input type="checkbox" id="history-toggle"> Let Copilot use my history and details (private chat only)</label>
+        <button id="notif-button" type="button" aria-haspopup="dialog">Notifications <span id="notif-count" class="badge" hidden>0</span></button>
+        <button id="admin-button" type="button" hidden>Administration</button>
+        <button id="signout-button" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <nav class="sidebar" aria-label="Conversations">
+      <form id="search-form" role="search">
+        <label for="search-input" class="visually-hidden">Search messages</label>
+        <input id="search-input" type="search" placeholder="Search messages" minlength="2" maxlength="100">
+        <button type="submit">Search</button>
+      </form>
+      <div class="sidebar-head">
+        <h2>Conversations</h2>
+        <button id="new-button" type="button" aria-haspopup="dialog">New</button>
+      </div>
+      <ul id="conversation-list" class="conv-list"></ul>
+    </nav>
+
+    <section id="messages-region" class="main" aria-labelledby="conv-title" tabindex="-1">
+      <div class="conv-head">
+        <h2 id="conv-title">Select a conversation</h2>
+        <span id="conv-sub" class="muted"></span>
+        <button id="members-button" type="button" hidden>Members</button>
+        <button id="leave-button" type="button" hidden>Leave</button>
+      </div>
+      <div class="list-wrap">
+        <button id="load-earlier" type="button" hidden>Load earlier messages</button>
+        <ol id="message-list" class="messages" aria-label="Messages"></ol>
+        <button id="load-later" type="button" hidden>Load later messages</button>
+      </div>
+      <form id="composer" class="composer" hidden>
+        <div id="reply-banner" class="reply-banner" hidden>
+          <span id="reply-text"></span> <button type="button" id="reply-cancel">Cancel reply</button>
+        </div>
+        <ul id="chips" class="chips" aria-label="Attachments to send"></ul>
+        <label for="composer-text" class="visually-hidden">Message</label>
+        <textarea id="composer-text" rows="2" placeholder="Write a message. Enter sends, Shift+Enter adds a line." maxlength="4000"></textarea>
+        <div class="composer-actions">
+          <label class="button" for="file-input">Attach</label>
+          <input id="file-input" type="file" class="visually-hidden">
+          <button type="submit">Send</button>
+        </div>
+      </form>
+    </section>
+
+    <aside id="side-panel" class="panel" hidden aria-labelledby="panel-title" tabindex="-1">
+      <div class="panel-head"><h2 id="panel-title"></h2><button id="panel-close" type="button">Close</button></div>
+      <div id="panel-body"></div>
+    </aside>
+  </div>
+
+  <dialog id="new-dialog" aria-labelledby="new-title">
+    <form id="new-form" method="dialog">
+      <h2 id="new-title">New conversation</h2>
+      <fieldset>
+        <legend>Type</legend>
+        <label><input type="radio" name="ctype" value="dm" checked> Direct message</label>
+        <label><input type="radio" name="ctype" value="group"> Group chat</label>
+        <label id="channel-option" hidden><input type="radio" name="ctype" value="channel"> Channel</label>
+      </fieldset>
+      <label id="name-row" for="new-name" hidden>Name</label>
+      <input id="new-name" maxlength="50" hidden>
+      <fieldset>
+        <legend>Members</legend>
+        <div id="member-choices"></div>
+      </fieldset>
+      <p id="new-error" class="error" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" id="new-cancel">Cancel</button>
+        <button type="submit" id="new-create">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/static/render.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

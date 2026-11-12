@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Requirements - Team Chat with Copilot</title><style>
+:root{--text:#111827;--muted:#4b5563;--accent:#1d4ed8;--border:#d1d5db;--panel:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,"Segoe UI",sans-serif;color:var(--text)}
+a{color:var(--accent)}a:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#000;color:#fff;padding:6px 10px}
+header.site{background:#0f172a;color:#fff;padding:12px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.site a{color:#fff;text-decoration:none}header.site .brand{font-weight:700;font-size:1.1rem}
+header.site nav a{margin-right:14px;opacity:.9}header.site nav a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:20px}
+aside.side{font-size:.92rem;position:sticky;top:12px;align-self:start}
+aside.side h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+aside.side ul{list-style:none;margin:0 0 16px;padding:0}aside.side li a{display:block;padding:4px 8px;border-radius:6px;text-decoration:none}
+aside.side li a[aria-current=page]{background:var(--panel);font-weight:700}
+main{min-width:0}main h1{margin-top:0}
+main table{border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
+main th,main td{border:1px solid var(--border);padding:6px 10px;vertical-align:top;font-size:.93rem}
+main th{background:var(--panel);text-align:left}
+main blockquote{margin:12px 0;padding:8px 16px;border-left:4px solid var(--accent);background:#eff6ff}
+main code{background:var(--panel);padding:1px 5px;border-radius:4px;font-size:.9em}
+main pre{background:#0f172a;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto}
+main pre code{background:none;color:inherit;padding:0}
+pre.mermaid{background:#fff;color:var(--text);border:1px solid var(--border);text-align:center}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px}
+.hero h1{color:#fff;font-size:2rem;margin:0 0 8px}.hero p{max-width:60ch;color:#dbeafe}
+.hero a.btn{display:inline-block;background:#fff;color:#0f172a;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px}.card h3{margin:0 0 6px;font-size:1.02rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+footer{max-width:1280px;margin:0 auto;padding:20px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}aside.side{position:static}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site"><a class="brand" href="index.html">Team Chat with Copilot</a>
+<nav aria-label="Main"><a href="index.html">Overview</a><a href="chatapp.requirements.html">Requirements</a>
+<a href="chatapp.archspecs.html">Architecture</a><a href="https://github.com/RaghunathLaxmiPathi/team-chat-copilot">Source code</a></nav></header>
+<div class="layout"><aside class="side" aria-label="Documents"><h2>Project</h2><ul><li><a href="index.html">Overview</a></li></ul><h2>Design documents</h2><ul><li><a href="chatapp.assumptions.html">Assumptions</a></li><li><a href="chatapp.assumptions.gao.html">Assumptions critique</a></li><li><a href="chatapp.requirements.html" aria-current="page">Requirements</a></li><li><a href="chatapp.requirements.gao.html">Requirements critique</a></li><li><a href="chatapp.funcspecs.html">Functional specifications</a></li><li><a href="chatapp.funcspecs.gao.html">Functional specifications critique</a></li><li><a href="chatapp.archspecs.html">Architecture specifications</a></li><li><a href="chatapp.archspecs.gao.html">Architecture critique</a></li><li><a href="chatapp.testspecs.html">Test specifications</a></li><li><a href="chatapp.testspecs.gao.html">Test specifications critique</a></li><li><a href="chatapp.implementation.gao.html">Implementation critique</a></li></ul></aside><main id="content"><h1 id="team-chat-application-requirements">Team Chat Application: Requirements</h1>
+<p>Date: 2026-11-11
+Source: <a href="chatapp.assumptions.html">chatapp.assumptions.md</a></p>
+<blockquote>
+<p><strong>Status at a glance</strong>
+66 requirements in sections 2 to 8. Each one traces to one or more assumptions (A-xx). The "Lab" column says how much is built in this lab: <strong>Yes</strong> (built), <strong>Stub</strong> (a simplified stand-in), or <strong>No</strong> (production only, not built).
+Chosen with the owner: Python stack, Success Rate SLO 99.9 percent, latency percentiles P50 200 ms, P75 400 ms, P90 700 ms, P95 1000 ms, P99 2000 ms, windows of 1 hour, 24 hours, and 28 days rolling.</p>
+</blockquote>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-scope-and-conventions">Scope and conventions</a></li>
+<li><a href="#2-users-and-access">Users and access</a></li>
+<li><a href="#3-conversations-and-membership">Conversations and membership</a></li>
+<li><a href="#4-messaging">Messaging</a></li>
+<li><a href="#5-delivery-and-real-time-behavior">Delivery and real-time behavior</a></li>
+<li><a href="#6-service-level-objectives">Service level objectives</a></li>
+<li><a href="#7-quality-capacity-availability-and-resiliency">Quality, capacity, availability, and resiliency</a></li>
+<li><a href="#8-security-privacy-accessibility-and-supportability">Security, privacy, accessibility, and supportability</a></li>
+<li><a href="#9-out-of-scope">Out of scope</a></li>
+<li><a href="#10-assistant-added-at-the-owners-request-after-the-first-review">Assistant, added at the owner's request</a></li>
+<li><a href="#11-open-items">Open items</a></li>
+</ol>
+<hr />
+<h2 id="1-scope-and-conventions">1. Scope and conventions</h2>
+<ul>
+<li>The product is a web-based chat service for the owner's direct team of about 10 people (A-01, A-02, A-09).</li>
+<li>"Must" means required. "Should" means expected unless there is a stated reason.</li>
+<li>Several values are proposed in the assumptions, not confirmed (Low confidence). Where a requirement depends on one, the Trace column names the assumption so it can be revisited when that assumption is confirmed.</li>
+<li>This lab builds a runnable version on a laptop. It is not a production Microsoft service. The Lab column and the risks section of the architecture document (<a href="chatapp.archspecs.html">chatapp.archspecs.md</a>) record every lab shortcut.</li>
+</ul>
+<h2 id="2-users-and-access">2. Users and access</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-01</td>
+<td>Users must sign in with their Entra ID corporate identity. The service must not store passwords.</td>
+<td>A-03</td>
+<td>Stub: a development sign-in for existing users that issues a signed token. No Entra ID.</td>
+</tr>
+<tr>
+<td>FR-02</td>
+<td>Only active, registered members of the team may use the service. A request from anyone else must be refused.</td>
+<td>A-01, A-04</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-03</td>
+<td>There must be at least two administrators. Administrators can add users and deactivate users.</td>
+<td>A-30</td>
+<td>Yes: two administrators are created at first start.</td>
+</tr>
+<tr>
+<td>FR-04</td>
+<td>When a user is deactivated, their access must end immediately for all sessions, including open real-time connections. Their past messages stay.</td>
+<td>A-19, A-30</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-05</td>
+<td>Messages from a deactivated user must show the author's name with the label "former member".</td>
+<td>A-19</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-06</td>
+<td>In v1, all users belong to one organization. Authorization must be based on per-conversation membership so another team can be added later without a redesign.</td>
+<td>A-04</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-conversations-and-membership">3. Conversations and membership</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-10</td>
+<td>A user can start a direct message (1:1) with another user. There is at most one direct conversation per pair of users. Creating one that already exists returns the existing one.</td>
+<td>A-06</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-11</td>
+<td>Any user can create a group chat and invite others. A group chat has at most 20 members.</td>
+<td>A-06, A-30, A-31</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-12</td>
+<td>Administrators create channels and manage channel membership. A channel has at most 100 members. Channels have a unique name.</td>
+<td>A-06, A-30, A-31</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-13</td>
+<td>Members of a group chat can add members. A member can leave a group chat or channel. Administrators can remove members from channels.</td>
+<td>A-30</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-14</td>
+<td>Removing a member from a conversation must end their access to it immediately, including real-time delivery.</td>
+<td>A-19, A-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-15</td>
+<td>A person added to a channel sees its full history. A person added to a group chat sees only messages sent after they joined. A person removed from a group chat and added again sees messages from their first join and after the re-add, but not those sent while they were removed. Direct messages have no joining.</td>
+<td>A-31, A-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-16</td>
+<td>Direct messages must be readable only by their two participants.</td>
+<td>A-22</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-messaging">4. Messaging</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-20</td>
+<td>A member can send a text message of 1 to 4,000 characters to a conversation they belong to.</td>
+<td>A-07, A-31</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-21</td>
+<td>Messages can use markdown formatting. Plain text is valid markdown. The rendered result must be sanitized so no script can run.</td>
+<td>A-07, A-23</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-22</td>
+<td>A member can reply to a message in the same conversation. Replies are grouped in a thread under the original message.</td>
+<td>A-07</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-23</td>
+<td>A member can mention other members of the conversation with @username. A mentioned member must receive a notification.</td>
+<td>A-07</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-24</td>
+<td>A member can attach files and images up to 25 MB each. Only allowed file types are accepted. Every attachment must be scanned for malware before others can open it. Access follows the conversation's membership.</td>
+<td>A-23</td>
+<td>Yes for size, type, and access. Stub for malware scanning (a hook that accepts all files).</td>
+</tr>
+<tr>
+<td>FR-25</td>
+<td>A member can search message text across the conversations they belong to. Search must never return results from conversations they do not belong to.</td>
+<td>A-07, A-20</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-26</td>
+<td>A member receives in-app notifications for new messages in their conversations and for mentions. Email and push notifications must not contain message text.</td>
+<td>A-07, A-20</td>
+<td>In-app: Yes. Email and push: Stub (a record of the notification only).</td>
+</tr>
+<tr>
+<td>FR-27</td>
+<td>A user can delete a message they wrote. The message disappears from all users' views immediately.</td>
+<td>A-15, A-17</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-28</td>
+<td>A deleted message must have its content removed from primary storage and the search index within 24 hours, and from backups when they expire (within 35 days).</td>
+<td>A-17</td>
+<td>Yes in primary storage and search (immediately). Backups: No.</td>
+</tr>
+<tr>
+<td>FR-29</td>
+<td>A deleted message that has replies is replaced in its thread by a "message deleted" placeholder. The replies stay.</td>
+<td>A-17</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-30</td>
+<td>Message times must be stored in UTC and shown in each user's own time zone.</td>
+<td>A-31</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-delivery-and-real-time-behavior">5. Delivery and real-time behavior</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-40</td>
+<td>Messages must be pushed to online recipients as they are sent, without the recipient asking.</td>
+<td>A-10</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-41</td>
+<td>The server must assign the order of messages within a conversation. Every device must show the same order.</td>
+<td>A-13</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-42</td>
+<td>Every message must carry a unique ID created by the sender. A retry with the same ID must never create a second message.</td>
+<td>A-12, A-13</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-43</td>
+<td>A message must be shown as sent only after the server has stored it durably.</td>
+<td>A-13, A-27</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-44</td>
+<td>The sender must see the status of each message (sending, sent, or failed). The client must retry automatically after a failure.</td>
+<td>A-12</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-45</td>
+<td>A user who was offline or disconnected must receive every message they missed, in order, when they return. Missed messages load in pages of 50.</td>
+<td>A-11, A-31</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-46</td>
+<td>A user can send at most 30 messages per minute. Beyond that, the service refuses with a clear "slow down" response.</td>
+<td>A-31</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>FR-47</td>
+<td>A user can mark a conversation read up to a message. The service tracks unread counts per conversation.</td>
+<td>A-07, A-11</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-service-level-objectives">6. Service level objectives</h2>
+<p>These are the customer-centric SLOs. Each is measured over three windows: <strong>1 hour</strong>, <strong>24 hours</strong>, and <strong>28 days rolling</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SLO-01</td>
+<td><strong>Success Rate SLO.</strong> At least 99.9 percent of valid customer requests must succeed in every window. A request counts as failed when the service returns a 5xx response or does not answer within 10 seconds. A failed real-time connection attempt, or a resume that returns an error, also counts as a failed request. A client error (4xx) is not a failure of the service and is excluded from the count.</td>
+<td>A-26, A-33</td>
+</tr>
+<tr>
+<td>SLO-02</td>
+<td><strong>Latency SLO.</strong> Message delivery latency is measured from the moment the server receives a message to the moment the recipient's client confirms receipt. Only recipients with an open real-time connection at send time are measured. Recipients who are offline are covered by catch-up (FR-45), not by this SLO. In every window, at least 50 percent of deliveries must arrive within 200 ms (P50), 75 percent within 400 ms (P75), 90 percent within 700 ms (P90), 95 percent within 1,000 ms (P95), and 99 percent within 2,000 ms (P99).</td>
+<td>A-29</td>
+</tr>
+<tr>
+<td>SLO-03</td>
+<td>The service must expose the measured Success Rate and each latency percentile for each window, so the objectives can be checked at any time.</td>
+<td>A-33</td>
+</tr>
+<tr>
+<td>SLO-04</td>
+<td>A burn-rate warning must be raised when the Success Rate in the 1-hour window falls below target while the 24-hour window is still within target, so the on-call person can act before the 28-day budget is spent.</td>
+<td>A-33</td>
+</tr>
+<tr>
+<td>SLO-05</td>
+<td>A window must have a minimum number of samples before a value is reported: 100 samples for P99, 30 for P95 and below, and 30 requests for the Success Rate. Below that, the service must report "insufficient data" instead of a value, and must not raise a warning from it.</td>
+<td>A-33, A-28</td>
+</tr>
+</tbody>
+</table>
+<p>Notes:</p>
+<ul>
+<li>P95 at 1,000 ms is fixed by the owner's statement (A-29). The other percentiles and the success target windows are proposed and need confirmation (A-26 and A-29 are Low or Medium confidence).</li>
+<li>With about 2,000 messages a day (A-28), the 1-hour window holds roughly 100 requests. A single failure then breaks 99.9 percent in that window. The 1-hour window is therefore for fast warning, and the 28-day window is the one that defines compliance.</li>
+</ul>
+<h2 id="7-quality-capacity-availability-and-resiliency">7. Quality, capacity, availability, and resiliency</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NFR-01</td>
+<td>Availability target: 99.9 percent per month for sending and receiving messages. A deployment must not lose messages.</td>
+<td>A-26</td>
+<td>Partial: the service is single-instance, so the target is designed for but not met.</td>
+</tr>
+<tr>
+<td>NFR-02</td>
+<td>An acknowledged message must survive a service restart. Recovery point objective is zero for acknowledged messages.</td>
+<td>A-27, A-11</td>
+<td>Yes on one machine (durable write before acknowledgment). No replication.</td>
+</tr>
+<tr>
+<td>NFR-03</td>
+<td>Recovery time objective is 4 hours for a full regional failure. Backups are taken at least daily, and a restore is tested at least every quarter.</td>
+<td>A-27</td>
+<td>Stub: a backup command and a restore test.</td>
+</tr>
+<tr>
+<td>NFR-04</td>
+<td>The service must run for the expected load: 10 users, about 2,000 messages a day (1 KB each), about 20 attachments a day (2 MB each), 10 concurrent connections. It should have 10 times headroom so growth does not force a rewrite.</td>
+<td>A-28</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>NFR-05</td>
+<td>The retention period must be configurable. No requirement may assume "keep forever".</td>
+<td>A-16</td>
+<td>Yes: a setting and a purge job. Default is no purge until compliance rules are known.</td>
+</tr>
+<tr>
+<td>NFR-06</td>
+<td>Before launch there must be automated tests for message ordering, duplicate prevention, reconnect and catch-up, permission checks, and accessibility checks.</td>
+<td>A-14, A-13</td>
+<td>Yes, except full accessibility audit.</td>
+</tr>
+<tr>
+<td>NFR-07</td>
+<td>On reconnect, catch-up must be bounded by paging, so a long absence does not overload the service or the client.</td>
+<td>A-31</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>NFR-08</td>
+<td>The service must run on Microsoft Azure, with separate development, test, and production environments. Production data must never be copied to development or test.</td>
+<td>A-25</td>
+<td>No (runs locally)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-security-privacy-accessibility-and-supportability">8. Security, privacy, accessibility, and supportability</h2>
+<h3 id="security">Security</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEC-01</td>
+<td>All connections must use TLS.</td>
+<td>A-22</td>
+<td>No: localhost over HTTP.</td>
+</tr>
+<tr>
+<td>SEC-02</td>
+<td>Stored data, attachments, and backups must be encrypted at rest with managed keys.</td>
+<td>A-22</td>
+<td>No</td>
+</tr>
+<tr>
+<td>SEC-03</td>
+<td>Authorization must be checked on the server for every request and every real-time connection: a user can read a conversation only if they are a current member.</td>
+<td>A-22, A-21</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SEC-04</td>
+<td>Administrators and operators must have no routine access to message content. The administration interface must not include a way to read messages.</td>
+<td>A-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SEC-05</td>
+<td>Administrative actions and permission changes must be written to an audit log.</td>
+<td>A-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>SEC-06</td>
+<td>Sign-in must follow the organization's Entra ID policy, including multifactor authentication.</td>
+<td>A-22, A-03</td>
+<td>No</td>
+</tr>
+<tr>
+<td>SEC-07</td>
+<td>The data must be classified as Confidential and protected accordingly.</td>
+<td>A-22</td>
+<td>Documented only</td>
+</tr>
+<tr>
+<td>SEC-08</td>
+<td>Rendered content must be sanitized. Attachments must be limited by size and type and scanned.</td>
+<td>A-23</td>
+<td>Yes except scanning (stub).</td>
+</tr>
+<tr>
+<td>SEC-09</td>
+<td>A session must last at most 8 hours. The server must check on every request and every real-time connection that the user is still active, so deactivation takes effect immediately.</td>
+<td>A-22, A-19, A-30</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="privacy">Privacy</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PRV-01</td>
+<td>Deletion takes precedence over retention.</td>
+<td>A-15, A-16</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>PRV-02</td>
+<td>Deletion and retention must apply to every copy: the search index, notification records, replies, and attachments.</td>
+<td>A-20</td>
+<td>Yes, except backups.</td>
+</tr>
+<tr>
+<td>PRV-03</td>
+<td>Logs must never contain message text.</td>
+<td>A-33, A-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>PRV-04</td>
+<td>The service must follow Microsoft privacy and data-handling requirements. The specific compliance, residency, and data-subject-request rules are not yet known and must be confirmed before launch.</td>
+<td>A-18</td>
+<td>Open item</td>
+</tr>
+</tbody>
+</table>
+<h3 id="accessibility">Accessibility</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACC-01</td>
+<td>The interface must meet WCAG 2.1 level AA and Microsoft accessibility requirements, and must be fully usable by keyboard.</td>
+<td>A-24</td>
+<td>Yes by design, not formally audited.</td>
+</tr>
+<tr>
+<td>ACC-02</td>
+<td>New messages must be announced to screen readers politely, without interrupting the user.</td>
+<td>A-24</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ACC-03</td>
+<td>Threads, @mentions, message lists, and notifications must have accessible structure and labels.</td>
+<td>A-24</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="supportability">Supportability</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OPS-01</td>
+<td>The service must monitor health, delivery latency, delivery failures, error rate, connection counts, and storage growth.</td>
+<td>A-33</td>
+<td>Yes: health checks, a metrics endpoint, and an SLO endpoint.</td>
+</tr>
+<tr>
+<td>OPS-02</td>
+<td>The service must alert the on-call person when targets are at risk.</td>
+<td>A-33</td>
+<td>Stub: warning state on the SLO endpoint. No alert routing.</td>
+</tr>
+<tr>
+<td>OPS-03</td>
+<td>A named service owner, an on-call rotation, an incident path, and a runbook must exist before launch.</td>
+<td>A-32</td>
+<td>Stub: a runbook in the README.</td>
+</tr>
+<tr>
+<td>OPS-04</td>
+<td>Deployment and updates must be automated.</td>
+<td>A-32</td>
+<td>No</td>
+</tr>
+<tr>
+<td>OPS-05</td>
+<td>Every request must carry a correlation ID that appears in logs and in the response, so support can trace a failure.</td>
+<td>A-33, A-32</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-out-of-scope">9. Out of scope</h2>
+<ul>
+<li>Voice (A-08).</li>
+<li>Native mobile and desktop clients (A-09).</li>
+<li>External guests and other teams in v1 (A-04).</li>
+<li>Typing indicators and online presence. The assumptions leave these undecided (finding G-19 deferred), so they are not built.</li>
+<li>Video, screen sharing, other bots, and integrations. The assumptions leave these unstated (G-20 deferred), so they are not built. The one exception is the built-in assistant in section 10, added at the owner's request.</li>
+<li>Editing messages. The owner did not select it.</li>
+<li>Read receipts. The owner did not select it.</li>
+</ul>
+<h2 id="10-assistant-added-at-the-owners-request-after-the-first-review">10. Assistant (added at the owner's request after the first review)</h2>
+<p>The owner asked for an assistant ("Copilot") that replies in every chat, can use the person's history and details, and can use live data. These requirements record that decision. They trace to the owner's instruction, not to an assumption, and they change the privacy position, so they need the confirmation listed in section 11 and in <a href="chatapp.implementation.gao.html">chatapp.implementation.gao.md</a>.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Trace</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ASST-01</td>
+<td>The assistant is a member account that cannot sign in and cannot be deactivated. It joins every group chat and channel. It does not join direct messages between two people.</td>
+<td>Owner request, FR-10, FR-16</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ASST-02</td>
+<td>In a group or channel it replies to everything a person writes when that person has "reply to everything" on (default on, per person), and otherwise only when mentioned. In a direct message with the assistant it always replies.</td>
+<td>Owner request</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ASST-03</td>
+<td>Every person has a private direct message with the assistant.</td>
+<td>Owner request</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ASST-04</td>
+<td>The assistant reads history only when asked, and only what the person asking is allowed to see (FR-15). It never answers another assistant.</td>
+<td>FR-15, A-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ASST-05</td>
+<td>The person's own history and details (their messages, mentions, unread, chats, profile) are used only in the private chat, never in a group, and only while the person's "use my history" switch is on.</td>
+<td>Owner request, PRV-01, A-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ASST-06</td>
+<td>The assistant gives live data: the time in any place, weather, who has the chat open among people the asker shares a chat with, and service status (administrators only).</td>
+<td>Owner request, OPS-01</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ASST-07</td>
+<td>Chat text, names, and conversation details must never leave the server. The only outside call is a place name to a weather and time service, and it can be switched off.</td>
+<td>PRV-03, A-22, A-18</td>
+<td>Yes, with the switch</td>
+</tr>
+<tr>
+<td>ASST-08</td>
+<td>Free text goes to a language model. By default the model runs on the same computer, so chat text does not leave it. A remote model (Azure OpenAI) is allowed only by explicit configuration and needs a data-protection review first. Exact commands (summaries, history, search, live data) are answered by code, not by the model. If the model is unavailable the assistant says so and uses simple built-in answers.</td>
+<td>A-18, A-22</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ASST-09</td>
+<td>The assistant and its replies do not weaken the SLOs: replies are produced after the sender's request completes, and outside calls run off the main loop.</td>
+<td>SLO-01, SLO-02</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="11-open-items">11. Open items</h2>
+<p>These could change the requirements. They are carried from the assumptions document.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Who answers</th>
+<th>Affects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Retention period and compliance rules</td>
+<td>Requester, privacy contact</td>
+<td>PRV-01, PRV-02, PRV-04, NFR-05</td>
+</tr>
+<tr>
+<td>Attachment retention</td>
+<td>Owner</td>
+<td>FR-24, FR-28</td>
+</tr>
+<tr>
+<td>Team accessibility needs</td>
+<td>Owner</td>
+<td>ACC-01 to ACC-03</td>
+</tr>
+<tr>
+<td>Guests or other teams</td>
+<td>Requester</td>
+<td>FR-06, SEC-03</td>
+</tr>
+<tr>
+<td>Hosting regions and compliance baseline</td>
+<td>Requester, platform owner</td>
+<td>NFR-08</td>
+</tr>
+<tr>
+<td>Confirmation of the proposed numbers (availability, latency percentiles, limits)</td>
+<td>Owner</td>
+<td>NFR-01 to NFR-04, SLO-01, SLO-02</td>
+</tr>
+<tr>
+<td>"Plain text only" and "markdown" both selected (G-18)</td>
+<td>Owner</td>
+<td>FR-21: treated as markdown including plain text</td>
+</tr>
+<tr>
+<td>Whether the whole team agrees to the assistant joining every group, replying to everything by default, and using the outside weather and time service (section 11)</td>
+<td>Owner, team, privacy contact</td>
+<td>ASST-01, ASST-02, ASST-07</td>
+</tr>
+</tbody>
+</table></main></div>
+<footer>Lab build, not production software. Generated from the markdown documents in the repository by tools/build_site.py.</footer>
+</body></html>

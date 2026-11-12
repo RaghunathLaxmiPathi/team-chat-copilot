@@ -1,0 +1,2790 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Architecture specifications - Team Chat with Copilot</title><style>
+:root{--text:#111827;--muted:#4b5563;--accent:#1d4ed8;--border:#d1d5db;--panel:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,"Segoe UI",sans-serif;color:var(--text)}
+a{color:var(--accent)}a:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#000;color:#fff;padding:6px 10px}
+header.site{background:#0f172a;color:#fff;padding:12px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.site a{color:#fff;text-decoration:none}header.site .brand{font-weight:700;font-size:1.1rem}
+header.site nav a{margin-right:14px;opacity:.9}header.site nav a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:20px}
+aside.side{font-size:.92rem;position:sticky;top:12px;align-self:start}
+aside.side h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+aside.side ul{list-style:none;margin:0 0 16px;padding:0}aside.side li a{display:block;padding:4px 8px;border-radius:6px;text-decoration:none}
+aside.side li a[aria-current=page]{background:var(--panel);font-weight:700}
+main{min-width:0}main h1{margin-top:0}
+main table{border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
+main th,main td{border:1px solid var(--border);padding:6px 10px;vertical-align:top;font-size:.93rem}
+main th{background:var(--panel);text-align:left}
+main blockquote{margin:12px 0;padding:8px 16px;border-left:4px solid var(--accent);background:#eff6ff}
+main code{background:var(--panel);padding:1px 5px;border-radius:4px;font-size:.9em}
+main pre{background:#0f172a;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto}
+main pre code{background:none;color:inherit;padding:0}
+pre.mermaid{background:#fff;color:var(--text);border:1px solid var(--border);text-align:center}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px}
+.hero h1{color:#fff;font-size:2rem;margin:0 0 8px}.hero p{max-width:60ch;color:#dbeafe}
+.hero a.btn{display:inline-block;background:#fff;color:#0f172a;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px}.card h3{margin:0 0 6px;font-size:1.02rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+footer{max-width:1280px;margin:0 auto;padding:20px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}aside.side{position:static}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site"><a class="brand" href="index.html">Team Chat with Copilot</a>
+<nav aria-label="Main"><a href="index.html">Overview</a><a href="chatapp.requirements.html">Requirements</a>
+<a href="chatapp.archspecs.html">Architecture</a><a href="https://github.com/RaghunathLaxmiPathi/team-chat-copilot">Source code</a></nav></header>
+<div class="layout"><aside class="side" aria-label="Documents"><h2>Project</h2><ul><li><a href="index.html">Overview</a></li></ul><h2>Design documents</h2><ul><li><a href="chatapp.assumptions.html">Assumptions</a></li><li><a href="chatapp.assumptions.gao.html">Assumptions critique</a></li><li><a href="chatapp.requirements.html">Requirements</a></li><li><a href="chatapp.requirements.gao.html">Requirements critique</a></li><li><a href="chatapp.funcspecs.html">Functional specifications</a></li><li><a href="chatapp.funcspecs.gao.html">Functional specifications critique</a></li><li><a href="chatapp.archspecs.html" aria-current="page">Architecture specifications</a></li><li><a href="chatapp.archspecs.gao.html">Architecture critique</a></li><li><a href="chatapp.testspecs.html">Test specifications</a></li><li><a href="chatapp.testspecs.gao.html">Test specifications critique</a></li><li><a href="chatapp.implementation.gao.html">Implementation critique</a></li></ul></aside><main id="content"><h1 id="team-chat-application-architecture-specifications">Team Chat Application: Architecture Specifications</h1>
+<p>Date: 2026-11-11
+Sources: <a href="chatapp.assumptions.html">chatapp.assumptions.md</a>, <a href="chatapp.requirements.html">chatapp.requirements.md</a>, <a href="chatapp.funcspecs.html">chatapp.funcspecs.md</a></p>
+<blockquote>
+<p><strong>Status at a glance</strong>
+A layered Python service with a built-in real-time channel and an embedded database. It starts with two commands and no installed server software. It is built so each lab shortcut has a named production replacement on Azure (section 11). Design decisions are numbered DD-01 and up, and each one names the requirement or assumption it comes from.</p>
+</blockquote>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-technology-stack">Technology stack</a></li>
+<li><a href="#2-architecture-overview">Architecture overview</a></li>
+<li><a href="#3-logical-block-diagram">Logical block diagram</a></li>
+<li><a href="#4-components-crc">Components (CRC)</a></li>
+<li><a href="#5-data-models">Data models</a></li>
+<li><a href="#6-api-specifications">API specifications</a></li>
+<li><a href="#7-real-time-protocol">Real-time protocol</a></li>
+<li><a href="#8-sequence-diagrams">Sequence diagrams</a></li>
+<li><a href="#9-meeting-the-fundamentals">Meeting the Fundamentals</a></li>
+<li><a href="#10-cross-cutting-concerns">Cross-cutting concerns</a></li>
+<li><a href="#11-architectural-risks-and-lab-shortcuts">Architectural risks and lab shortcuts</a></li>
+</ol>
+<hr />
+<h2 id="1-technology-stack">1. Technology stack</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Choice</th>
+<th>Justification</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Language and framework</td>
+<td>Python 3.12 with FastAPI (on Starlette) and Uvicorn</td>
+<td>The owner chose Python. FastAPI gives asynchronous request handling, built-in WebSocket support, input validation with typed models, and an automatic API description. It runs with <code>pip install</code> and one command. It runs on Azure App Service for Linux or Azure Container Apps without change.</td>
+<td>A-09, A-10, NFR-04</td>
+</tr>
+<tr>
+<td>Real-time messaging</td>
+<td>Native WebSocket served by the same process, with an in-process connection hub</td>
+<td>Instant push needs a persistent connection. A WebSocket needs no extra service to run locally. The hub keeps one outgoing queue per connection so a slow client cannot delay others. In production this role moves to a managed service (section 11).</td>
+<td>A-10, FR-40, SLO-02</td>
+</tr>
+<tr>
+<td>Data storage</td>
+<td>SQLite (Python standard library <code>sqlite3</code>), write-ahead log mode, full synchronous writes, FTS5 full-text search</td>
+<td>Zero setup: one file, no server. Full synchronous writes mean a message is on disk before it is acknowledged. FTS5 gives search without another component. Transactions give a safe, gap-free message order per conversation.</td>
+<td>A-11, A-27, FR-25, FR-41, FR-43, NFR-02</td>
+</tr>
+<tr>
+<td>File storage</td>
+<td>Local folder with generated file names</td>
+<td>No setup. Names never come from the user, so a file name cannot point outside the folder. In production: Azure Blob Storage.</td>
+<td>A-23, FR-24</td>
+</tr>
+<tr>
+<td>Web client</td>
+<td>Plain HTML, CSS, and JavaScript served by the same service. No build step.</td>
+<td>Nothing to install. Small enough to review for accessibility and script injection.</td>
+<td>A-09, A-24, FR-21</td>
+</tr>
+<tr>
+<td>Sign-in (lab)</td>
+<td>Development sign-in issuing an HMAC-signed token with an 8-hour life</td>
+<td>Stands in for Entra ID so the lab runs offline. It is isolated behind one interface so Entra ID replaces it without changing the rest.</td>
+<td>A-03, FR-01, SEC-09</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>JSON logs to standard output, a correlation ID on every request, in-process metrics, and an SLO tracker that stores per-minute counts in the database</td>
+<td>Gives the monitoring the assumptions ask for with no setup. In production: OpenTelemetry into Azure Monitor and Application Insights (section 11).</td>
+<td>A-33, OPS-01, SLO-03</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>pytest with FastAPI's test client</td>
+<td>Tests run the real service in memory with a temporary database.</td>
+<td>A-14, NFR-06</td>
+</tr>
+</tbody>
+</table>
+<p>Local run needs only Python and <code>pip</code>. There is no database server, message broker, or container.</p>
+<h2 id="2-architecture-overview">2. Architecture overview</h2>
+<h3 id="structure">Structure</h3>
+<p>The service is one deployable unit (a modular monolith) with four layers:</p>
+<ol>
+<li><strong>Transport layer:</strong> HTTP routes and one WebSocket endpoint. It checks input shape, calls the sign-in check, and turns errors into responses.</li>
+<li><strong>Service layer:</strong> the rules of the product (membership, ordering, deletion, search, notifications, limits). It knows nothing about HTTP.</li>
+<li><strong>Data layer:</strong> one <code>Database</code> object that owns the SQLite connection and the schema.</li>
+<li><strong>Real-time layer:</strong> the connection hub, which takes events from services and delivers them to open connections.</li>
+</ol>
+<p>Cross-cutting parts (middleware, configuration, logging, rate limit, SLO tracker, audit log) sit beside the layers.</p>
+<h3 id="patterns-used">Patterns used</h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Where</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layered architecture</td>
+<td>Routers, services, database</td>
+<td>Keeps rules testable without HTTP. Maps cleanly onto a production move to other storage.</td>
+</tr>
+<tr>
+<td>Server-assigned sequence</td>
+<td>Per-conversation message number, assigned inside the write transaction</td>
+<td>Gives one order for every device (FR-41) without clocks.</td>
+</tr>
+<tr>
+<td>Idempotent command</td>
+<td>Client-created message ID with a unique database constraint</td>
+<td>Safe retries with no duplicates (FR-42).</td>
+</tr>
+<tr>
+<td>Write, then publish</td>
+<td>A message is committed first, then handed to the hub</td>
+<td>Nothing is shown as sent that is not stored (FR-43).</td>
+</tr>
+<tr>
+<td>Per-connection queue</td>
+<td>Hub</td>
+<td>A slow or stuck client cannot block delivery to others, and a full queue closes that connection so the client resumes cleanly (NFR-07).</td>
+</tr>
+<tr>
+<td>Resume by cursor</td>
+<td>The client reports the last number it holds per conversation</td>
+<td>Bounded, ordered catch-up with no gaps (FR-45).</td>
+</tr>
+<tr>
+<td>Membership periods</td>
+<td>Table of from/to sequence ranges per member</td>
+<td>Answers "who may see which message" with one rule, including re-adds (FR-15).</td>
+</tr>
+<tr>
+<td>Tombstone</td>
+<td>A deleted message keeps its row with no content</td>
+<td>Keeps order and thread structure while removing content (FR-27, FR-29).</td>
+</tr>
+<tr>
+<td>Port-style seams</td>
+<td>Token service, attachment scanner, notification outbox</td>
+<td>Each lab stand-in can be replaced by a production service without touching callers (section 11).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-design-decisions">Key design decisions</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Decision</th>
+<th>Rationale</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DD-01</td>
+<td>One process, one SQLite file, one event loop. Database calls are short and run on the event loop.</td>
+<td>Meets the 10-user load (A-28) with the least moving parts. A single writer makes the message order trivially safe. The cost is no scaling out, which is a stated lab shortcut (R-01).</td>
+<td>A-28, NFR-04</td>
+</tr>
+<tr>
+<td>DD-02</td>
+<td>Messages are sent with HTTP POST, and pushed with the WebSocket.</td>
+<td>A POST has a clear success or failure, which supports retry, idempotency, the delivery status the user sees, and the Success Rate SLO. The WebSocket carries only server-to-client events and small client messages (resume, ack).</td>
+<td>FR-42, FR-44, SLO-01</td>
+</tr>
+<tr>
+<td>DD-03</td>
+<td>Message order is a per-conversation integer assigned in the same transaction that stores the message.</td>
+<td>One order for everyone, with no dependence on device clocks.</td>
+<td>FR-41, A-13</td>
+</tr>
+<tr>
+<td>DD-04</td>
+<td>The unique pair (sender, client message ID) makes a retry return the stored message.</td>
+<td>Retries never duplicate.</td>
+<td>FR-42, A-13</td>
+</tr>
+<tr>
+<td>DD-05</td>
+<td>The service acknowledges a POST only after the transaction commits with full synchronous writes.</td>
+<td>An acknowledged message survives a restart (recovery point of zero on one machine).</td>
+<td>FR-43, NFR-02, A-27</td>
+</tr>
+<tr>
+<td>DD-06</td>
+<td>The hub looks up current members at publish time. It does not cache membership.</td>
+<td>Removing a member takes effect on the next event with no cache to invalidate.</td>
+<td>FR-14, SEC-03</td>
+</tr>
+<tr>
+<td>DD-07</td>
+<td>Every request and every WebSocket connection loads the user and checks that they are active. Deactivation also closes that user's connections.</td>
+<td>Immediate access removal even with a signed token that has not expired.</td>
+<td>FR-04, SEC-09, A-30</td>
+</tr>
+<tr>
+<td>DD-08</td>
+<td>Authorization is a membership check in the service layer, and "not a member" and "does not exist" give the same answer (404).</td>
+<td>Cannot probe for conversations. The rule lives in one place.</td>
+<td>SEC-03, FR-16</td>
+</tr>
+<tr>
+<td>DD-09</td>
+<td>The administration API has no endpoint that returns message content.</td>
+<td>Administrators and operators have no routine access to content.</td>
+<td>SEC-04, A-22</td>
+</tr>
+<tr>
+<td>DD-10</td>
+<td>Message text is stored as typed. The client renders it with escaping first, then a small set of markdown rules. The service sets a strict content security policy.</td>
+<td>No stored markup, so a rendering fix needs no data migration. Two layers against script injection.</td>
+<td>FR-21, SEC-08, A-23</td>
+</tr>
+<tr>
+<td>DD-11</td>
+<td>Deleting a message sets its text to empty, removes its attachments' files, removes mentions, and updates the search index in the same transaction.</td>
+<td>Deletion reaches every copy that the service controls at once.</td>
+<td>FR-27, FR-28, PRV-02, A-17</td>
+</tr>
+<tr>
+<td>DD-12</td>
+<td>Catch-up returns messages after the client's cursor, and also the IDs of messages deleted since the client's last sync time.</td>
+<td>A message deleted while a client was offline disappears when the client returns.</td>
+<td>FR-45, FR-27</td>
+</tr>
+<tr>
+<td>DD-13</td>
+<td>Delivery latency is measured by the recipient's confirmation of each message, and unconfirmed deliveries after 10 seconds are counted in the slowest bucket.</td>
+<td>The measurement matches the SLO definition and cannot hide slow or lost deliveries.</td>
+<td>SLO-02, A-29</td>
+</tr>
+<tr>
+<td>DD-14</td>
+<td>The Success Rate counts only customer API calls. Health, metrics, objectives, and static files are excluded. Client errors (4xx) are not counted.</td>
+<td>Matches the SLO definition, which excludes client errors.</td>
+<td>SLO-01</td>
+</tr>
+<tr>
+<td>DD-15</td>
+<td>SLO counts are kept per minute in memory and saved to the database at least once a minute and at shutdown.</td>
+<td>The 28-day window survives a restart.</td>
+<td>SLO-01, SLO-02, SLO-03</td>
+</tr>
+<tr>
+<td>DD-16</td>
+<td>The service reports "insufficient data" for any window below the minimum sample size.</td>
+<td>No false breach or false pass.</td>
+<td>SLO-05</td>
+</tr>
+<tr>
+<td>DD-17</td>
+<td>Configuration comes from environment variables with safe defaults.</td>
+<td>One build for every environment. Production values come from the platform.</td>
+<td>NFR-08, A-25</td>
+</tr>
+<tr>
+<td>DD-18</td>
+<td>The retention period is a setting. A scheduled job removes message content older than the limit. By default it does nothing.</td>
+<td>"Keep forever" is only a placeholder, so the design must not assume it.</td>
+<td>NFR-05, A-16</td>
+</tr>
+<tr>
+<td>DD-19</td>
+<td>All administrative and membership changes write an audit record in the same transaction as the change.</td>
+<td>The audit trail cannot disagree with the data.</td>
+<td>SEC-05, A-22</td>
+</tr>
+<tr>
+<td>DD-20</td>
+<td>Errors use one response shape with a stable code, a plain message, and the request's correlation ID.</td>
+<td>One thing for the client to handle. Support can trace a failure.</td>
+<td>OPS-05, A-33</td>
+</tr>
+<tr>
+<td>DD-21</td>
+<td>Logs contain request metadata only. A filter rejects fields named like message content.</td>
+<td>Keeps sensitive text out of logs.</td>
+<td>PRV-03, A-33</td>
+</tr>
+<tr>
+<td>DD-22</td>
+<td>Attachments are uploaded first, then referenced by ID when sending. They pass through a scanner interface before they can be opened.</td>
+<td>Keeps the message send small and fast, lets uploads fail and retry on their own, and gives one place for the scan.</td>
+<td>FR-24, A-23</td>
+</tr>
+<tr>
+<td>DD-23</td>
+<td>The client uses paging of 50 and never asks for "everything".</td>
+<td>Bounds catch-up work however long the absence.</td>
+<td>NFR-07, A-31</td>
+</tr>
+<tr>
+<td>DD-24</td>
+<td>Email and push notifications go into an outbox table with no message text. The lab never sends them.</td>
+<td>The privacy rule holds from the start, and a real sender can be added behind the outbox.</td>
+<td>FR-26, A-20</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-logical-block-diagram">3. Logical block diagram</h2>
+<pre class="mermaid">flowchart TB
+    subgraph Client[&quot;Browser (web client)&quot;]
+        UI[&quot;UI: sign-in, conversations, messages, search, notifications, admin&quot;]
+        RT[&quot;Real-time client: connect, resume, ack, retry&quot;]
+        MD[&quot;Markdown renderer (escape first)&quot;]
+    end
+
+    subgraph Service[&quot;Chat service (one process)&quot;]
+        MW[&quot;Request middleware: correlation ID, security headers, logging, SLO recording&quot;]
+        ERR[&quot;Error handlers&quot;]
+        subgraph Transport[&quot;Transport layer&quot;]
+            R_AUTH[&quot;Auth router&quot;]
+            R_USERS[&quot;Users router&quot;]
+            R_CONV[&quot;Conversations router&quot;]
+            R_MSG[&quot;Messages router&quot;]
+            R_ATT[&quot;Attachments router&quot;]
+            R_SEARCH[&quot;Search router&quot;]
+            R_NOTIF[&quot;Notifications router&quot;]
+            R_OPS[&quot;Operations router&quot;]
+            WS[&quot;WebSocket endpoint&quot;]
+            STATIC[&quot;Static files&quot;]
+        end
+        AUTHD[&quot;Auth dependency&quot;]
+        subgraph Services[&quot;Service layer&quot;]
+            S_USER[&quot;UserService&quot;]
+            S_CONV[&quot;ConversationService&quot;]
+            S_MSG[&quot;MessageService&quot;]
+            S_ATT[&quot;AttachmentService&quot;]
+            S_SEARCH[&quot;SearchService&quot;]
+            S_NOTIF[&quot;NotificationService&quot;]
+            S_RET[&quot;RetentionService&quot;]
+        end
+        HUB[&quot;ConnectionHub&quot;]
+        TOKEN[&quot;TokenService&quot;]
+        RATE[&quot;RateLimiter&quot;]
+        SLO[&quot;SloTracker&quot;]
+        AUDIT[&quot;AuditLog&quot;]
+        CFG[&quot;Settings&quot;]
+        DB[(&quot;Database: SQLite file with full-text index&quot;)]
+        FILES[(&quot;Attachment folder&quot;)]
+    end
+
+    UI --&gt; MW
+    RT &lt;--&gt; WS
+    UI --&gt; MD
+    MW --&gt; Transport
+    MW --&gt; ERR
+    MW --&gt; SLO
+    Transport --&gt; AUTHD
+    AUTHD --&gt; TOKEN
+    AUTHD --&gt; DB
+    R_AUTH --&gt; TOKEN
+    R_AUTH --&gt; S_USER
+    R_USERS --&gt; S_USER
+    R_CONV --&gt; S_CONV
+    R_MSG --&gt; S_MSG
+    R_ATT --&gt; S_ATT
+    R_SEARCH --&gt; S_SEARCH
+    R_NOTIF --&gt; S_NOTIF
+    R_OPS --&gt; SLO
+    WS --&gt; HUB
+    S_USER --&gt; DB
+    S_USER --&gt; AUDIT
+    S_USER --&gt; HUB
+    S_CONV --&gt; DB
+    S_CONV --&gt; AUDIT
+    S_CONV --&gt; S_NOTIF
+    S_CONV --&gt; HUB
+    S_MSG --&gt; DB
+    S_MSG --&gt; RATE
+    S_MSG --&gt; S_NOTIF
+    S_MSG --&gt; S_ATT
+    S_MSG --&gt; HUB
+    S_ATT --&gt; DB
+    S_ATT --&gt; FILES
+    S_SEARCH --&gt; DB
+    S_NOTIF --&gt; DB
+    S_NOTIF --&gt; HUB
+    S_RET --&gt; S_MSG
+    HUB --&gt; DB
+    HUB --&gt; SLO
+    AUDIT --&gt; DB
+    SLO --&gt; DB
+    CFG -.-&gt; MW
+    CFG -.-&gt; Services
+    STATIC --&gt; UI
+</pre>
+<h2 id="4-components-crc">4. Components (CRC)</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Responsibilities</th>
+<th>Collaborators</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Settings</strong></td>
+<td>Reads configuration from environment variables with defaults. Provides limits (message length, rate, file size, page size, session hours, timeouts).</td>
+<td>All components</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>Opens the SQLite file with write-ahead logging and full synchronous writes. Creates the schema and the full-text index on first start. Provides a transaction helper. Reports file size and health.</td>
+<td>Services, Hub, AuditLog, SloTracker</td>
+</tr>
+<tr>
+<td><strong>TokenService</strong></td>
+<td>Creates and verifies signed session tokens with an expiry. Holds the signing key (generated once and stored beside the database in the lab).</td>
+<td>Auth router, AuthDependency, WebSocket endpoint</td>
+</tr>
+<tr>
+<td><strong>AuthDependency</strong></td>
+<td>Reads the token from the request, verifies it, loads the user, rejects deactivated or unknown users, and supplies the current user. Provides the administrator check.</td>
+<td>TokenService, Database, every router</td>
+</tr>
+<tr>
+<td><strong>RequestMiddleware</strong></td>
+<td>Assigns the correlation ID. Adds security headers. Times each request. Writes one log line. Reports the outcome of each customer API call to the SloTracker. Turns a timeout or crash into a failed count.</td>
+<td>SloTracker, logging, ErrorHandlers</td>
+</tr>
+<tr>
+<td><strong>ErrorHandlers</strong></td>
+<td>Maps application errors, validation errors, and unexpected failures to the single error response shape. Never exposes internal details.</td>
+<td>RequestMiddleware</td>
+</tr>
+<tr>
+<td><strong>UserService</strong></td>
+<td>Creates users, lists users, grants and removes the administrator role, deactivates users (and closes their connections). Enforces the two-administrator minimum. Seeds the first administrators.</td>
+<td>Database, AuditLog, ConnectionHub</td>
+</tr>
+<tr>
+<td><strong>ConversationService</strong></td>
+<td>Creates direct, group, and channel conversations. Adds and removes members and maintains membership periods. Enforces member limits and who may do what. Lists conversations with unread counts. Tracks read position.</td>
+<td>Database, AuditLog, NotificationService, ConnectionHub</td>
+</tr>
+<tr>
+<td><strong>MessageService</strong></td>
+<td>Checks membership and rate limit. Assigns the sequence number and stores the message in one transaction. Handles duplicates by client ID. Parses mentions. Stores replies. Deletes messages (tombstone). Pages history (before, after, around). Builds the thread view. Publishes events.</td>
+<td>Database, RateLimiter, AttachmentService, NotificationService, ConnectionHub</td>
+</tr>
+<tr>
+<td><strong>AttachmentService</strong></td>
+<td>Validates size and type. Stores the file under a generated name. Calls the scanner. Checks membership before download. Links uploads to messages. Removes unsent uploads after an hour and removes files of deleted messages.</td>
+<td>Database, attachment folder</td>
+</tr>
+<tr>
+<td><strong>SearchService</strong></td>
+<td>Turns user text into a safe full-text query. Returns matches restricted to the user's visible history, newest first.</td>
+<td>Database</td>
+</tr>
+<tr>
+<td><strong>NotificationService</strong></td>
+<td>Creates mention and "added" notifications. Queues email entries in the outbox for users with no open connection. Lists notifications and marks them read. Pushes live notification events.</td>
+<td>Database, ConnectionHub</td>
+</tr>
+<tr>
+<td><strong>ConnectionHub</strong></td>
+<td>Tracks open WebSocket connections per user. Gives each connection a bounded queue and a writer task. Publishes events to the current members. Handles resume (replay by cursor, deleted IDs). Records delivery confirmations. Closes connections for deactivated users and expired sessions.</td>
+<td>Database, SloTracker, services</td>
+</tr>
+<tr>
+<td><strong>RateLimiter</strong></td>
+<td>Counts messages per user in a sliding 60-second window and says whether another is allowed.</td>
+<td>MessageService</td>
+</tr>
+<tr>
+<td><strong>SloTracker</strong></td>
+<td>Records customer request outcomes and delivery latencies in one-minute buckets. Saves the buckets. Computes the Success Rate and latency percentiles for 1-hour, 24-hour, and 28-day windows. Applies the minimum sample rule and the burn-rate warning.</td>
+<td>Database, RequestMiddleware, ConnectionHub, Operations router</td>
+</tr>
+<tr>
+<td><strong>AuditLog</strong></td>
+<td>Writes who did what to what, with the time, in the caller's transaction.</td>
+<td>Database, UserService, ConversationService</td>
+</tr>
+<tr>
+<td><strong>RetentionService</strong></td>
+<td>When a retention period is set, removes content of messages older than the period, using the same deletion path as a user deletion.</td>
+<td>MessageService, Database</td>
+</tr>
+<tr>
+<td><strong>Routers (transport)</strong></td>
+<td>Define the endpoints in section 6. Check input shape. Call services. Return the response.</td>
+<td>Services, AuthDependency</td>
+</tr>
+<tr>
+<td><strong>Web client</strong></td>
+<td>Draws the interface. Opens the WebSocket. Sends messages with retry. Resumes after a drop. Renders messages safely. Announces new messages to screen readers.</td>
+<td>Routers, WebSocket endpoint</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-data-models">5. Data models</h2>
+<p>Types are SQLite types. All IDs are random 32-character hexadecimal strings. All times are UTC text in ISO 8601 form.</p>
+<h3 id="users">users</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>TEXT, primary key</td>
+<td>User ID</td>
+</tr>
+<tr>
+<td>username</td>
+<td>TEXT, unique</td>
+<td>Lowercase sign-in name, 3 to 32 characters</td>
+</tr>
+<tr>
+<td>display_name</td>
+<td>TEXT</td>
+<td>Name shown to others</td>
+</tr>
+<tr>
+<td>is_admin</td>
+<td>INTEGER</td>
+<td>1 for administrators</td>
+</tr>
+<tr>
+<td>status</td>
+<td>TEXT</td>
+<td><code>active</code> or <code>deactivated</code></td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TEXT</td>
+<td>Creation time</td>
+</tr>
+<tr>
+<td>deactivated_at</td>
+<td>TEXT, null</td>
+<td>Deactivation time</td>
+</tr>
+</tbody>
+</table>
+<h3 id="conversations">conversations</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>TEXT, primary key</td>
+<td>Conversation ID</td>
+</tr>
+<tr>
+<td>type</td>
+<td>TEXT</td>
+<td><code>dm</code>, <code>group</code>, or <code>channel</code></td>
+</tr>
+<tr>
+<td>name</td>
+<td>TEXT, null</td>
+<td>Name for groups and channels. Null for direct messages.</td>
+</tr>
+<tr>
+<td>name_key</td>
+<td>TEXT, null</td>
+<td>Lowercase name. Unique among channels.</td>
+</tr>
+<tr>
+<td>dm_key</td>
+<td>TEXT, null</td>
+<td>The two user IDs joined in sorted order. Unique. Makes one direct conversation per pair.</td>
+</tr>
+<tr>
+<td>created_by</td>
+<td>TEXT</td>
+<td>User ID of the creator</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TEXT</td>
+<td>Creation time</td>
+</tr>
+<tr>
+<td>last_seq</td>
+<td>INTEGER</td>
+<td>The highest message number assigned so far</td>
+</tr>
+</tbody>
+</table>
+<h3 id="memberships">memberships</h3>
+<p>One row per period of membership, so a person who leaves and returns has two rows.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>INTEGER, primary key</td>
+<td>Row ID</td>
+</tr>
+<tr>
+<td>conversation_id</td>
+<td>TEXT</td>
+<td>Conversation</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>TEXT</td>
+<td>Member</td>
+</tr>
+<tr>
+<td>from_seq</td>
+<td>INTEGER</td>
+<td>First message number the member may see in this period</td>
+</tr>
+<tr>
+<td>to_seq</td>
+<td>INTEGER, null</td>
+<td>Last message number the member may see. Null while still a member.</td>
+</tr>
+<tr>
+<td>joined_at</td>
+<td>TEXT</td>
+<td>When the period began</td>
+</tr>
+<tr>
+<td>left_at</td>
+<td>TEXT, null</td>
+<td>When the period ended</td>
+</tr>
+</tbody>
+</table>
+<p>A member is current when <code>to_seq</code> is null. A message with number <code>n</code> is visible to a user when some row has <code>from_seq &lt;= n</code> and (<code>to_seq</code> is null or <code>n &lt;= to_seq</code>).</p>
+<h3 id="messages">messages</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>TEXT, primary key</td>
+<td>Message ID</td>
+</tr>
+<tr>
+<td>conversation_id</td>
+<td>TEXT</td>
+<td>Conversation</td>
+</tr>
+<tr>
+<td>seq</td>
+<td>INTEGER</td>
+<td>Order within the conversation. Unique together with the conversation.</td>
+</tr>
+<tr>
+<td>sender_id</td>
+<td>TEXT</td>
+<td>Author</td>
+</tr>
+<tr>
+<td>client_msg_id</td>
+<td>TEXT</td>
+<td>The sender's unique ID for retries. Unique together with the sender. A repeat of the same ID for a different conversation is refused with a conflict.</td>
+</tr>
+<tr>
+<td>body</td>
+<td>TEXT, null</td>
+<td>Message text as typed. Null after deletion.</td>
+</tr>
+<tr>
+<td>reply_to_id</td>
+<td>TEXT, null</td>
+<td>The original message of a thread</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TEXT</td>
+<td>Server receive time</td>
+</tr>
+<tr>
+<td>deleted_at</td>
+<td>TEXT, null</td>
+<td>Deletion time</td>
+</tr>
+</tbody>
+</table>
+<h3 id="messages_fts">messages_fts</h3>
+<p>A full-text index over <code>messages.body</code>, kept in step by database triggers. A deleted message leaves the index in the same transaction.</p>
+<h3 id="mentions">mentions</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>message_id</td>
+<td>TEXT</td>
+<td>Message</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>TEXT</td>
+<td>Mentioned member</td>
+</tr>
+</tbody>
+</table>
+<p>Primary key is both fields.</p>
+<h3 id="attachments">attachments</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>TEXT, primary key</td>
+<td>Attachment ID</td>
+</tr>
+<tr>
+<td>conversation_id</td>
+<td>TEXT</td>
+<td>Conversation it was uploaded to</td>
+</tr>
+<tr>
+<td>uploader_id</td>
+<td>TEXT</td>
+<td>Uploader</td>
+</tr>
+<tr>
+<td>message_id</td>
+<td>TEXT, null</td>
+<td>The message it is attached to. Null until sent.</td>
+</tr>
+<tr>
+<td>filename</td>
+<td>TEXT</td>
+<td>Original file name, for display only</td>
+</tr>
+<tr>
+<td>content_type</td>
+<td>TEXT</td>
+<td>Checked type</td>
+</tr>
+<tr>
+<td>size_bytes</td>
+<td>INTEGER</td>
+<td>Size</td>
+</tr>
+<tr>
+<td>storage_name</td>
+<td>TEXT</td>
+<td>Generated file name on disk</td>
+</tr>
+<tr>
+<td>scan_status</td>
+<td>TEXT</td>
+<td><code>clean</code>, <code>pending</code>, or <code>rejected</code></td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TEXT</td>
+<td>Upload time</td>
+</tr>
+<tr>
+<td>deleted_at</td>
+<td>TEXT, null</td>
+<td>Removal time</td>
+</tr>
+</tbody>
+</table>
+<h3 id="notifications">notifications</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>TEXT, primary key</td>
+<td>Notification ID</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>TEXT</td>
+<td>Recipient</td>
+</tr>
+<tr>
+<td>type</td>
+<td>TEXT</td>
+<td><code>mention</code> or <code>added</code></td>
+</tr>
+<tr>
+<td>conversation_id</td>
+<td>TEXT</td>
+<td>Conversation</td>
+</tr>
+<tr>
+<td>actor_id</td>
+<td>TEXT</td>
+<td>The person who caused it</td>
+</tr>
+<tr>
+<td>message_id</td>
+<td>TEXT, null</td>
+<td>The message for a mention</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TEXT</td>
+<td>Time</td>
+</tr>
+<tr>
+<td>read_at</td>
+<td>TEXT, null</td>
+<td>When read</td>
+</tr>
+</tbody>
+</table>
+<p>No message text is stored here (FR-26).</p>
+<h3 id="notification_outbox">notification_outbox</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>TEXT, primary key</td>
+<td>Entry ID</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>TEXT</td>
+<td>Recipient</td>
+</tr>
+<tr>
+<td>channel</td>
+<td>TEXT</td>
+<td><code>email</code> (push is designed, not built)</td>
+</tr>
+<tr>
+<td>type</td>
+<td>TEXT</td>
+<td><code>mention</code> or <code>added</code></td>
+</tr>
+<tr>
+<td>conversation_id</td>
+<td>TEXT</td>
+<td>Conversation</td>
+</tr>
+<tr>
+<td>actor_id</td>
+<td>TEXT</td>
+<td>The person who caused it</td>
+</tr>
+<tr>
+<td>created_at</td>
+<td>TEXT</td>
+<td>Queued time</td>
+</tr>
+<tr>
+<td>sent_at</td>
+<td>TEXT, null</td>
+<td>Always null in the lab</td>
+</tr>
+</tbody>
+</table>
+<h3 id="read_cursors">read_cursors</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user_id</td>
+<td>TEXT</td>
+<td>User</td>
+</tr>
+<tr>
+<td>conversation_id</td>
+<td>TEXT</td>
+<td>Conversation</td>
+</tr>
+<tr>
+<td>last_read_seq</td>
+<td>INTEGER</td>
+<td>Highest message number the user has read</td>
+</tr>
+</tbody>
+</table>
+<p>Primary key is both fields. Unread count is the number of visible, non-deleted messages from others above this number.</p>
+<h3 id="audit_log">audit_log</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>INTEGER, primary key</td>
+<td>Row ID</td>
+</tr>
+<tr>
+<td>ts</td>
+<td>TEXT</td>
+<td>Time</td>
+</tr>
+<tr>
+<td>actor_id</td>
+<td>TEXT</td>
+<td>Who did it</td>
+</tr>
+<tr>
+<td>action</td>
+<td>TEXT</td>
+<td>For example <code>user.create</code>, <code>user.deactivate</code>, <code>member.add</code>, <code>member.remove</code>, <code>channel.create</code></td>
+</tr>
+<tr>
+<td>target_type</td>
+<td>TEXT</td>
+<td><code>user</code> or <code>conversation</code></td>
+</tr>
+<tr>
+<td>target_id</td>
+<td>TEXT</td>
+<td>Target ID</td>
+</tr>
+<tr>
+<td>detail</td>
+<td>TEXT</td>
+<td>Small JSON note with no message content</td>
+</tr>
+</tbody>
+</table>
+<h3 id="slo_minutes">slo_minutes</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>minute</td>
+<td>TEXT, primary key</td>
+<td>UTC minute</td>
+</tr>
+<tr>
+<td>req_total</td>
+<td>INTEGER</td>
+<td>Counted customer requests</td>
+</tr>
+<tr>
+<td>req_failed</td>
+<td>INTEGER</td>
+<td>Failed requests</td>
+</tr>
+<tr>
+<td>lat_counts</td>
+<td>TEXT</td>
+<td>JSON list of counts per latency bucket</td>
+</tr>
+<tr>
+<td>lat_total</td>
+<td>INTEGER</td>
+<td>Total latency samples</td>
+</tr>
+</tbody>
+</table>
+<p>Latency bucket upper edges in milliseconds: 10, 25, 50, 100, 150, 200, 300, 400, 500, 700, 1000, 1500, 2000, 3000, 5000, 10000, and one overflow bucket. The target values (200, 400, 700, 1000, 2000) are all bucket edges, so a comparison against a target is exact.</p>
+<h3 id="wire-shapes-shared-by-the-api-and-websocket">Wire shapes (shared by the API and WebSocket)</h3>
+<table>
+<thead>
+<tr>
+<th>Shape</th>
+<th>Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User</td>
+<td><code>id</code>, <code>username</code>, <code>display_name</code>, <code>is_admin</code>, <code>status</code></td>
+</tr>
+<tr>
+<td>Conversation</td>
+<td><code>id</code>, <code>type</code>, <code>name</code>, <code>members</code> (list of <code>id</code>, <code>display_name</code>, <code>status</code>), <code>last_seq</code>, <code>unread_count</code>, <code>created_at</code></td>
+</tr>
+<tr>
+<td>Message</td>
+<td><code>id</code>, <code>conversation_id</code>, <code>seq</code>, <code>sender_id</code>, <code>sender_name</code>, <code>sender_status</code>, <code>body</code> (null if deleted), <code>deleted</code>, <code>reply_to_id</code>, <code>mentions</code> (user IDs), <code>attachments</code> (list of Attachment), <code>client_msg_id</code>, <code>created_at</code></td>
+</tr>
+<tr>
+<td>Attachment</td>
+<td><code>id</code>, <code>filename</code>, <code>content_type</code>, <code>size_bytes</code></td>
+</tr>
+<tr>
+<td>Notification</td>
+<td><code>id</code>, <code>type</code>, <code>conversation_id</code>, <code>conversation_name</code>, <code>actor_id</code>, <code>actor_name</code>, <code>message_id</code>, <code>created_at</code>, <code>read</code></td>
+</tr>
+<tr>
+<td>Error</td>
+<td><code>error</code> with <code>code</code>, <code>message</code>, <code>request_id</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-api-specifications">6. API specifications</h2>
+<p>All routes are under <code>/api/v1</code> unless marked. All requests and responses use JSON, except file upload and download. Every response carries the header <code>X-Request-ID</code>. Every route except the ones marked "Open" needs the header <code>Authorization: Bearer &lt;token&gt;</code>. Error responses use the Error shape. Common errors: 401 <code>unauthorized</code> (missing, invalid, or expired token, or deactivated user), 429 <code>rate_limited</code>, 500 <code>internal_error</code>.</p>
+<h3 id="operations">Operations</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Method</th>
+<th>Auth</th>
+<th>Request</th>
+<th>Response</th>
+<th>Constraints and errors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/healthz</code></td>
+<td>GET</td>
+<td>Open</td>
+<td>none</td>
+<td>200 <code>{"status":"ok"}</code></td>
+<td>Liveness only. Not counted in the SLO. (OPS-01)</td>
+</tr>
+<tr>
+<td><code>/readyz</code></td>
+<td>GET</td>
+<td>Open</td>
+<td>none</td>
+<td>200 <code>{"status":"ready"}</code></td>
+<td>503 <code>{"status":"not_ready"}</code> if the database cannot be reached. Not counted.</td>
+</tr>
+<tr>
+<td><code>/metrics</code></td>
+<td>GET</td>
+<td>Administrator</td>
+<td>none</td>
+<td>200 object: <code>uptime_seconds</code>, <code>http</code> (<code>requests_total</code>, <code>by_status</code>), <code>websocket</code> (<code>connections</code>, <code>deliveries_confirmed</code>, <code>deliveries_timed_out</code>), <code>storage</code> (<code>database_bytes</code>, <code>attachment_bytes</code>, <code>messages_total</code>)</td>
+<td>403 <code>forbidden</code> for non-administrators. (OPS-01, F-06)</td>
+</tr>
+<tr>
+<td><code>/api/v1/slo</code></td>
+<td>GET</td>
+<td>Administrator</td>
+<td>Query <code>window</code> (optional): <code>1h</code>, <code>24h</code>, or <code>28d</code></td>
+<td>200 <code>{"targets":{...},"windows":{"1h":{...},"24h":{...},"28d":{...}},"burn_rate_warning":false}</code>. Each window has <code>success_rate</code> (<code>requests</code>, <code>failed</code>, <code>value</code>, <code>target</code>, <code>status</code>) and <code>latency_ms</code> (<code>samples</code>, and for each of <code>p50</code>, <code>p75</code>, <code>p90</code>, <code>p95</code>, <code>p99</code>: <code>value_ms</code>, <code>target_ms</code>, <code>status</code>). <code>status</code> is <code>ok</code>, <code>breach</code>, or <code>insufficient_data</code>.</td>
+<td>400 for an unknown window. (SLO-03, SLO-04, SLO-05)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="auth-and-users">Auth and users</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Method</th>
+<th>Auth</th>
+<th>Request</th>
+<th>Response</th>
+<th>Constraints and errors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/auth/dev-login</code></td>
+<td>POST</td>
+<td>Open</td>
+<td><code>{"username": string}</code></td>
+<td>200 <code>{"token": string, "expires_at": time, "user": User}</code></td>
+<td>Lab only, switched off by setting. 404 when disabled. 401 <code>unauthorized</code> with the same text for unknown and deactivated users. (FR-01, SEC-09)</td>
+</tr>
+<tr>
+<td><code>/api/v1/me</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>none</td>
+<td>200 User</td>
+<td>(UC-01)</td>
+</tr>
+<tr>
+<td><code>/api/v1/users</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>none</td>
+<td>200 <code>{"users":[User]}</code></td>
+<td>Includes deactivated users so past messages can show "former member". Contains no message content. (FR-05)</td>
+</tr>
+<tr>
+<td><code>/api/v1/users</code></td>
+<td>POST</td>
+<td>Administrator</td>
+<td><code>{"username": string, "display_name": string, "is_admin": boolean (optional)}</code></td>
+<td>201 User</td>
+<td><code>username</code> matches <code>^[a-z0-9._-]{3,32}$</code>. <code>display_name</code> 1 to 60 characters. 400 invalid. 409 <code>conflict</code> if the name exists. 403 non-administrator. Writes an audit record. (FR-03, UC-16)</td>
+</tr>
+<tr>
+<td><code>/api/v1/users/{user_id}</code></td>
+<td>PATCH</td>
+<td>Administrator</td>
+<td><code>{"is_admin": boolean}</code></td>
+<td>200 User</td>
+<td>404 unknown user. 409 <code>conflict</code> if the change leaves fewer than two active administrators. Writes an audit record. (FR-03)</td>
+</tr>
+<tr>
+<td><code>/api/v1/users/{user_id}/deactivate</code></td>
+<td>POST</td>
+<td>Administrator</td>
+<td>none</td>
+<td>200 User</td>
+<td>404 unknown. 409 <code>conflict</code> if it is the caller or would leave fewer than two active administrators. Closes the user's connections, removes them from group chats and channels, writes an audit record. Idempotent. (FR-04, UC-17)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="conversations_1">Conversations</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Method</th>
+<th>Auth</th>
+<th>Request</th>
+<th>Response</th>
+<th>Constraints and errors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/conversations</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>none</td>
+<td>200 <code>{"conversations":[Conversation]}</code></td>
+<td>Only the caller's current conversations, with <code>unread_count</code>. (FR-47)</td>
+</tr>
+<tr>
+<td><code>/api/v1/conversations</code></td>
+<td>POST</td>
+<td>Member (channel: Administrator)</td>
+<td><code>{"type": "dm"/"group"/"channel", "name": string (group, channel), "member_ids": [string]}</code></td>
+<td>201 Conversation, or 200 with the existing one for a repeated direct message</td>
+<td><code>dm</code>: exactly one other active user. <code>group</code>: 1 to 19 others, <code>name</code> 1 to 50. <code>channel</code>: administrator only, 0 to 99 others, <code>name</code> 1 to 50 and unique ignoring case. 400 invalid or unknown or deactivated member. 403 non-administrator for a channel. 409 name taken. Sends "added" notifications. (FR-10 to FR-12)</td>
+</tr>
+<tr>
+<td><code>/api/v1/conversations/{conversation_id}</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>none</td>
+<td>200 Conversation</td>
+<td>404 if not a current member. (SEC-03, DD-08)</td>
+</tr>
+<tr>
+<td><code>/api/v1/conversations/{conversation_id}/members</code></td>
+<td>POST</td>
+<td>Member of a group, Administrator for a channel</td>
+<td><code>{"user_id": string}</code></td>
+<td>200 Conversation</td>
+<td>403 for a channel when not an administrator. 400 for a direct message or unknown or deactivated user. 409 if already a member or the limit (20 or 100) is reached. 404 if the caller is not a member. Opens a membership period and sends an "added" notification. (FR-13, FR-15)</td>
+</tr>
+<tr>
+<td><code>/api/v1/conversations/{conversation_id}/members/{user_id}</code></td>
+<td>DELETE</td>
+<td>Member (self), Administrator (channel)</td>
+<td>none</td>
+<td>204</td>
+<td>A user can remove themselves from a group or channel. Only an administrator removes others, and only from a channel. 400 for a direct message. 403 otherwise. 404 not a member. Closes the period, stops delivery at once, writes an audit record. (FR-13, FR-14)</td>
+</tr>
+<tr>
+<td><code>/api/v1/conversations/{conversation_id}/read</code></td>
+<td>POST</td>
+<td>Member</td>
+<td><code>{"seq": integer &gt;= 0}</code></td>
+<td>200 <code>{"conversation_id": string, "last_read_seq": integer, "unread_count": integer}</code></td>
+<td><code>seq</code> is capped at <code>last_seq</code>. The cursor never moves backward. (FR-47)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="messages_1">Messages</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Method</th>
+<th>Auth</th>
+<th>Request</th>
+<th>Response</th>
+<th>Constraints and errors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/conversations/{conversation_id}/messages</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>Query: <code>limit</code> 1 to 50 (default 50), and at most one of <code>before_seq</code>, <code>after_seq</code>, <code>around_seq</code></td>
+<td>200 <code>{"messages":[Message], "has_more_before": boolean, "has_more_after": boolean}</code></td>
+<td>Messages are in ascending order. No parameter returns the newest page. <code>before_seq</code> returns the page before a number. <code>after_seq</code> returns the next page after a number, for catch-up. <code>around_seq</code> returns up to 25 before and 25 after. Only messages in the caller's membership periods. Deleted messages appear as tombstones. 400 for more than one cursor. 404 not a member. (FR-45, UC-13)</td>
+</tr>
+<tr>
+<td><code>/api/v1/conversations/{conversation_id}/messages</code></td>
+<td>POST</td>
+<td>Member</td>
+<td><code>{"client_msg_id": string (8 to 64 characters), "body": string, "reply_to_id": string (optional), "attachment_ids": [string] (optional)}</code></td>
+<td>201 <code>{"message": Message, "duplicate": false}</code>. For a repeated <code>client_msg_id</code> from the same sender: 200 with <code>"duplicate": true</code> and the stored message.</td>
+<td><code>body</code> 1 to 4,000 characters after trimming. <code>reply_to_id</code> must be in the same conversation. At most 5 attachments, each uploaded by the sender to this conversation and not yet sent. Rate limit 30 a minute (429 <code>rate_limited</code> with <code>Retry-After</code>). 404 not a member. 409 <code>conversation_closed</code> for a direct message whose other member is deactivated. 409 <code>conflict</code> if the <code>client_msg_id</code> was already used by the sender in a different conversation. 400 invalid. Publishes the message to all current members. (FR-20 to FR-24, FR-41 to FR-46)</td>
+</tr>
+<tr>
+<td><code>/api/v1/messages/{message_id}/thread</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>none</td>
+<td>200 <code>{"root": Message, "replies": [Message]}</code></td>
+<td>404 if the message is not visible to the caller. Deleted replies appear as tombstones. (FR-22)</td>
+</tr>
+<tr>
+<td><code>/api/v1/messages/{message_id}</code></td>
+<td>DELETE</td>
+<td>Member (author only)</td>
+<td>none</td>
+<td>204</td>
+<td>403 <code>forbidden</code> if not the author. 404 not found or not visible. Idempotent for the author. Empties the text, removes files, mentions, and index entries, and publishes <code>message_deleted</code>. (FR-27 to FR-29)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="attachments_1">Attachments</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Method</th>
+<th>Auth</th>
+<th>Request</th>
+<th>Response</th>
+<th>Constraints and errors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/attachments</code></td>
+<td>POST</td>
+<td>Member</td>
+<td>Multipart form: <code>conversation_id</code>, <code>file</code></td>
+<td>201 Attachment</td>
+<td>Caller must be a current member (404 otherwise). 1 byte to 25 MB (413 <code>payload_too_large</code>). Allowed types by extension and declared type: png, jpg, jpeg, gif, webp, pdf, txt, md, csv, docx, xlsx, pptx (415 <code>unsupported_media_type</code>). The scanner must pass the file. (FR-24)</td>
+</tr>
+<tr>
+<td><code>/api/v1/attachments/{attachment_id}</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>none</td>
+<td>200 file bytes with <code>Content-Disposition: attachment</code>, <code>X-Content-Type-Options: nosniff</code></td>
+<td>Caller must be a current member of the conversation and the message must be visible to them. 404 otherwise. Deleted or rejected files give 404. (FR-24, SEC-03)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="search-and-notifications">Search and notifications</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Method</th>
+<th>Auth</th>
+<th>Request</th>
+<th>Response</th>
+<th>Constraints and errors</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/search</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>Query: <code>q</code> (2 to 100 characters), <code>limit</code> (1 to 50, default 50)</td>
+<td>200 <code>{"results":[{"message": Message, "conversation_name": string, "excerpt": string}]}</code></td>
+<td>Newest first. Only visible, non-deleted messages in the caller's conversations. The query is treated as plain words, never as search syntax. 400 invalid. (FR-25)</td>
+</tr>
+<tr>
+<td><code>/api/v1/notifications</code></td>
+<td>GET</td>
+<td>Member</td>
+<td>Query: <code>unread_only</code> (optional boolean)</td>
+<td>200 <code>{"notifications":[Notification], "unread_count": integer}</code></td>
+<td>Newest first, at most 100. (FR-26)</td>
+</tr>
+<tr>
+<td><code>/api/v1/notifications/{notification_id}/read</code></td>
+<td>POST</td>
+<td>Member</td>
+<td>none</td>
+<td>200 Notification</td>
+<td>404 if not the caller's. Idempotent.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="real-time-and-static">Real-time and static</h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Method</th>
+<th>Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/ws</code></td>
+<td>WebSocket</td>
+<td>Token in query <code>token</code> (lab; see risk R-12)</td>
+<td>The real-time channel. Protocol in section 7. Closes with code 4401 for an invalid or expired token and 4403 for a deactivated user.</td>
+</tr>
+<tr>
+<td><code>/</code> and <code>/static/*</code></td>
+<td>GET</td>
+<td>Open</td>
+<td>The web client files. Not counted in the SLO.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-real-time-protocol">7. Real-time protocol</h2>
+<p>All frames are JSON objects with a <code>type</code>.</p>
+<h3 id="server-to-client">Server to client</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Fields</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hello</code></td>
+<td><code>user_id</code>, <code>conn_id</code>, <code>server_time</code></td>
+<td>Sent after connecting</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td><code>message</code> (Message)</td>
+<td>A new message in a conversation the user is in. Includes the user's own messages sent from another device.</td>
+</tr>
+<tr>
+<td><code>message_deleted</code></td>
+<td><code>conversation_id</code>, <code>message_id</code></td>
+<td>A message was deleted</td>
+</tr>
+<tr>
+<td><code>conversation_added</code></td>
+<td><code>conversation</code></td>
+<td>The user was added to a conversation</td>
+</tr>
+<tr>
+<td><code>conversation_removed</code></td>
+<td><code>conversation_id</code></td>
+<td>The user was removed. Delivery for it has stopped.</td>
+</tr>
+<tr>
+<td><code>notification</code></td>
+<td><code>notification</code></td>
+<td>A new mention or "added" notification</td>
+</tr>
+<tr>
+<td><code>resume_page</code></td>
+<td><code>conversation_id</code>, <code>messages</code>, <code>has_more</code></td>
+<td>Up to 50 missed messages in ascending order</td>
+</tr>
+<tr>
+<td><code>resume_done</code></td>
+<td><code>server_time</code>, <code>deleted</code> (list of <code>conversation_id</code>, <code>message_id</code>)</td>
+<td>Catch-up is finished. Includes IDs deleted since the client's last sync.</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td><code>code</code>, <code>message</code></td>
+<td>A frame was invalid</td>
+</tr>
+<tr>
+<td><code>pong</code></td>
+<td>none</td>
+<td>Reply to <code>ping</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="client-to-server">Client to server</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Fields</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>resume</code></td>
+<td><code>cursors</code> (map of conversation ID to last number held), <code>since</code> (server time of the last sync, or null)</td>
+<td>Ask for what was missed. Conversations not listed are not replayed. The client loads their newest page over HTTP.</td>
+</tr>
+<tr>
+<td><code>ack</code></td>
+<td><code>message_id</code></td>
+<td>The message reached the client. Used to measure delivery latency.</td>
+</tr>
+<tr>
+<td><code>ping</code></td>
+<td>none</td>
+<td>Keep-alive. The client sends one every 25 seconds.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="limits">Limits</h3>
+<ul>
+<li>On every connect, the client first reloads its conversation list over HTTP, then sends <code>resume</code>. This picks up conversations it was added to or removed from while offline, because those events are not replayed.</li>
+<li>
+<p>The <code>server_time</code> in <code>hello</code> and <code>resume_done</code> is taken before any reading for the resume begins. A message deleted during the resume is therefore reported in the next resume at the latest, and is never missed.</p>
+</li>
+<li>
+<p>Each connection has a queue of 1,000 events. If it fills, the service closes the connection with code 4408. The client reconnects and resumes.</p>
+</li>
+<li>A connection older than its token is closed with 4401.</li>
+<li>An unconfirmed delivery after 10 seconds is recorded in the slowest latency bucket.</li>
+</ul>
+<h2 id="8-sequence-diagrams">8. Sequence diagrams</h2>
+<p>Every HTTP request first passes the middleware (correlation ID, timing, security headers, SLO recording) and then, for protected routes, the auth dependency. The first diagram shows that common path in full. The others show the same path in short form with the middleware and auth steps named.</p>
+<p>Participants: Client, MW (middleware), Router, Auth (auth dependency), Svc (service), DB (database), Hub (connection hub), SLO (SLO tracker).</p>
+<h3 id="81-common-request-path-every-api-call">8.1 Common request path (every API call)</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as Service
+    participant DB as Database
+    participant SLO as SloTracker
+    Client-&gt;&gt;MW: HTTP request
+    MW-&gt;&gt;MW: create correlation ID, start timer
+    MW-&gt;&gt;Router: route request
+    Router-&gt;&gt;Auth: verify token
+    Auth-&gt;&gt;DB: load user, check active
+    DB--&gt;&gt;Auth: user
+    Auth--&gt;&gt;Router: current user
+    Router-&gt;&gt;Svc: call with validated input
+    Svc-&gt;&gt;DB: read or write
+    DB--&gt;&gt;Svc: result
+    Svc--&gt;&gt;Router: result
+    Router--&gt;&gt;MW: response
+    MW-&gt;&gt;SLO: record outcome (counted if not 4xx)
+    MW-&gt;&gt;MW: write log line
+    MW--&gt;&gt;Client: response with X-Request-ID
+</pre>
+<h3 id="82-get-healthz-and-get-readyz">8.2 GET /healthz and GET /readyz</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client as Probe
+    participant MW as Middleware
+    participant Router
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /readyz
+    MW-&gt;&gt;Router: route (excluded from SLO)
+    Router-&gt;&gt;DB: run a trivial query
+    alt database reachable
+        DB--&gt;&gt;Router: ok
+        Router--&gt;&gt;Client: 200 ready
+    else database error
+        DB--&gt;&gt;Router: error
+        Router--&gt;&gt;Client: 503 not_ready
+    end
+</pre>
+<p><code>/healthz</code> is the same without the database step and always answers 200 while the process runs.</p>
+<h3 id="83-get-metrics">8.3 GET /metrics</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Hub as ConnectionHub
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /metrics
+    MW-&gt;&gt;Router: route (excluded from SLO)
+    Router-&gt;&gt;Auth: verify token, require administrator
+    alt not an administrator
+        Auth--&gt;&gt;Client: 403 forbidden
+    else administrator
+        Router-&gt;&gt;Hub: connection and delivery counters
+        Router-&gt;&gt;DB: file size, message count
+        Router--&gt;&gt;Client: 200 metrics
+    end
+</pre>
+<h3 id="84-get-apiv1slo">8.4 GET /api/v1/slo</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant SLO as SloTracker
+    Client-&gt;&gt;MW: GET /api/v1/slo?window=1h
+    MW-&gt;&gt;Router: route (excluded from SLO)
+    Router-&gt;&gt;Auth: require administrator
+    Router-&gt;&gt;SLO: evaluate windows
+    SLO-&gt;&gt;SLO: sum minute buckets in window
+    SLO-&gt;&gt;SLO: apply minimum sample rule, compute percentiles
+    SLO--&gt;&gt;Router: windows, statuses, burn-rate flag
+    Router--&gt;&gt;Client: 200 objectives report
+</pre>
+<h3 id="85-post-apiv1authdev-login">8.5 POST /api/v1/auth/dev-login</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Svc as UserService
+    participant Tok as TokenService
+    participant DB as Database
+    Client-&gt;&gt;MW: POST dev-login {username}
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Svc: find active user
+    Svc-&gt;&gt;DB: select by username
+    DB--&gt;&gt;Svc: user or none
+    alt unknown or deactivated
+        Svc--&gt;&gt;Client: 401 unauthorized (same text)
+    else active
+        Router-&gt;&gt;Tok: create token (8 hours)
+        Tok--&gt;&gt;Router: token, expiry
+        Router--&gt;&gt;Client: 200 token and user
+    end
+</pre>
+<h3 id="86-get-apiv1me">8.6 GET /api/v1/me</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Auth as AuthDependency
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /api/v1/me
+    MW-&gt;&gt;Auth: verify token
+    Auth-&gt;&gt;DB: load user, check active
+    DB--&gt;&gt;Auth: user
+    Auth--&gt;&gt;Client: 200 user (via router)
+</pre>
+<h3 id="87-get-apiv1users">8.7 GET /api/v1/users</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as UserService
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /api/v1/users
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: list users
+    Svc-&gt;&gt;DB: select users
+    DB--&gt;&gt;Svc: rows
+    Svc--&gt;&gt;Router: users
+    Router--&gt;&gt;Client: 200 users
+</pre>
+<h3 id="88-post-apiv1users">8.8 POST /api/v1/users</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as UserService
+    participant DB as Database
+    participant Aud as AuditLog
+    Client-&gt;&gt;MW: POST /api/v1/users
+    MW-&gt;&gt;Router: route and validate body
+    Router-&gt;&gt;Auth: require administrator
+    Router-&gt;&gt;Svc: create user
+    Svc-&gt;&gt;DB: begin transaction
+    Svc-&gt;&gt;DB: insert user (unique username)
+    Svc-&gt;&gt;Aud: record user.create
+    Aud-&gt;&gt;DB: insert audit row
+    Svc-&gt;&gt;DB: commit
+    alt username exists
+        DB--&gt;&gt;Client: 409 conflict
+    else created
+        Router--&gt;&gt;Client: 201 user
+    end
+</pre>
+<h3 id="89-patch-apiv1usersuser_id">8.9 PATCH /api/v1/users/{user_id}</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as UserService
+    participant DB as Database
+    participant Aud as AuditLog
+    Client-&gt;&gt;MW: PATCH /api/v1/users/{id} {is_admin}
+    MW-&gt;&gt;Router: route and validate
+    Router-&gt;&gt;Auth: require administrator
+    Router-&gt;&gt;Svc: change role
+    Svc-&gt;&gt;DB: begin, load user
+    Svc-&gt;&gt;DB: count active administrators after change
+    alt fewer than two
+        Svc--&gt;&gt;Client: 409 conflict
+    else ok
+        Svc-&gt;&gt;DB: update role
+        Svc-&gt;&gt;Aud: record user.role
+        Svc-&gt;&gt;DB: commit
+        Router--&gt;&gt;Client: 200 user
+    end
+</pre>
+<h3 id="810-post-apiv1usersuser_iddeactivate">8.10 POST /api/v1/users/{user_id}/deactivate</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as UserService
+    participant DB as Database
+    participant Aud as AuditLog
+    participant Hub as ConnectionHub
+    Client-&gt;&gt;MW: POST /api/v1/users/{id}/deactivate
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: require administrator
+    Router-&gt;&gt;Svc: deactivate
+    Svc-&gt;&gt;DB: begin, load user
+    alt self or fewer than two administrators would remain
+        Svc--&gt;&gt;Client: 409 conflict
+    else ok
+        Svc-&gt;&gt;DB: set status deactivated
+        Svc-&gt;&gt;DB: close open membership periods in groups and channels
+        Svc-&gt;&gt;Aud: record user.deactivate
+        Svc-&gt;&gt;DB: commit
+        Svc-&gt;&gt;Hub: close connections of user (code 4403)
+        Router--&gt;&gt;Client: 200 user
+    end
+</pre>
+<h3 id="811-get-apiv1conversations">8.11 GET /api/v1/conversations</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as ConversationService
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /api/v1/conversations
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: list for user
+    Svc-&gt;&gt;DB: current memberships, members, read cursors
+    Svc-&gt;&gt;DB: count unread per conversation
+    DB--&gt;&gt;Svc: rows
+    Svc--&gt;&gt;Router: conversations with unread counts
+    Router--&gt;&gt;Client: 200 conversations
+</pre>
+<h3 id="812-post-apiv1conversations">8.12 POST /api/v1/conversations</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as ConversationService
+    participant DB as Database
+    participant Aud as AuditLog
+    participant Not as NotificationService
+    participant Hub as ConnectionHub
+    Client-&gt;&gt;MW: POST /api/v1/conversations
+    MW-&gt;&gt;Router: route and validate
+    Router-&gt;&gt;Auth: verify (administrator if channel)
+    Router-&gt;&gt;Svc: create
+    Svc-&gt;&gt;DB: begin, check members active and limits
+    alt direct message already exists
+        Svc--&gt;&gt;Client: 200 existing conversation
+    else new
+        Svc-&gt;&gt;DB: insert conversation and membership periods
+        Svc-&gt;&gt;Aud: record channel.create or group.create
+        Svc-&gt;&gt;Not: create &quot;added&quot; notifications
+        Not-&gt;&gt;DB: insert notifications
+        Svc-&gt;&gt;DB: commit
+        Svc-&gt;&gt;Hub: send conversation_added and notification
+        Router--&gt;&gt;Client: 201 conversation
+    end
+</pre>
+<h3 id="813-get-apiv1conversationsconversation_id">8.13 GET /api/v1/conversations/{conversation_id}</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as ConversationService
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /api/v1/conversations/{id}
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: get for user
+    Svc-&gt;&gt;DB: membership check
+    alt not a current member
+        Svc--&gt;&gt;Client: 404 not_found
+    else member
+        Svc-&gt;&gt;DB: load conversation and members
+        Router--&gt;&gt;Client: 200 conversation
+    end
+</pre>
+<h3 id="814-post-apiv1conversationsconversation_idmembers">8.14 POST /api/v1/conversations/{conversation_id}/members</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as ConversationService
+    participant DB as Database
+    participant Aud as AuditLog
+    participant Not as NotificationService
+    participant Hub as ConnectionHub
+    Client-&gt;&gt;MW: POST .../members {user_id}
+    MW-&gt;&gt;Router: route and validate
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: add member
+    Svc-&gt;&gt;DB: begin, caller is member? type and role rules, limits
+    alt not allowed or limit reached
+        Svc--&gt;&gt;Client: 403 or 404 or 409
+    else ok
+        Svc-&gt;&gt;DB: open membership period (group: from next seq, channel: from 1)
+        Svc-&gt;&gt;Aud: record member.add
+        Svc-&gt;&gt;Not: &quot;added&quot; notification
+        Svc-&gt;&gt;DB: commit
+        Svc-&gt;&gt;Hub: conversation_added and notification to the new member
+        Router--&gt;&gt;Client: 200 conversation
+    end
+</pre>
+<h3 id="815-delete-apiv1conversationsconversation_idmembersuser_id">8.15 DELETE /api/v1/conversations/{conversation_id}/members/{user_id}</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as ConversationService
+    participant DB as Database
+    participant Aud as AuditLog
+    participant Hub as ConnectionHub
+    Client-&gt;&gt;MW: DELETE .../members/{user_id}
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: remove member
+    Svc-&gt;&gt;DB: begin, self or administrator of a channel?
+    alt not allowed
+        Svc--&gt;&gt;Client: 400 or 403 or 404
+    else ok
+        Svc-&gt;&gt;DB: close membership period (to_seq = last_seq)
+        Svc-&gt;&gt;Aud: record member.remove
+        Svc-&gt;&gt;DB: commit
+        Svc-&gt;&gt;Hub: conversation_removed to the user's connections
+        Router--&gt;&gt;Client: 204
+    end
+</pre>
+<h3 id="816-post-apiv1conversationsconversation_idread">8.16 POST /api/v1/conversations/{conversation_id}/read</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as ConversationService
+    participant DB as Database
+    Client-&gt;&gt;MW: POST .../read {seq}
+    MW-&gt;&gt;Router: route and validate
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: mark read
+    Svc-&gt;&gt;DB: membership check
+    Svc-&gt;&gt;DB: upsert cursor (never backward, capped at last_seq)
+    Svc-&gt;&gt;DB: count unread
+    Router--&gt;&gt;Client: 200 cursor and unread count
+</pre>
+<h3 id="817-get-apiv1conversationsconversation_idmessages">8.17 GET /api/v1/conversations/{conversation_id}/messages</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as MessageService
+    participant DB as Database
+    Client-&gt;&gt;MW: GET .../messages?after_seq=120
+    MW-&gt;&gt;Router: route and validate (one cursor only)
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: page messages
+    Svc-&gt;&gt;DB: membership periods for user
+    alt not a member
+        Svc--&gt;&gt;Client: 404 not_found
+    else member
+        Svc-&gt;&gt;DB: select up to limit within visible ranges
+        Svc-&gt;&gt;DB: load mentions and attachments
+        Svc--&gt;&gt;Router: messages and has_more flags
+        Router--&gt;&gt;Client: 200 page in ascending order
+    end
+</pre>
+<h3 id="818-post-apiv1conversationsconversation_idmessages-send">8.18 POST /api/v1/conversations/{conversation_id}/messages (send)</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as MessageService
+    participant Rate as RateLimiter
+    participant DB as Database
+    participant Not as NotificationService
+    participant Hub as ConnectionHub
+    Client-&gt;&gt;MW: POST .../messages {client_msg_id, body}
+    MW-&gt;&gt;Router: route and validate
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: send
+    Svc-&gt;&gt;DB: membership check
+    Svc-&gt;&gt;DB: find message by (sender, client_msg_id)
+    alt duplicate
+        Svc--&gt;&gt;Client: 200 stored message, duplicate true
+    else new
+        Svc-&gt;&gt;Rate: allow one more?
+        alt over limit
+            Svc--&gt;&gt;Client: 429 rate_limited
+        else allowed
+            Svc-&gt;&gt;DB: begin, next seq = last_seq + 1
+            Svc-&gt;&gt;DB: insert message, mentions, attach files
+            Svc-&gt;&gt;Not: mention notifications and outbox entries
+            Svc-&gt;&gt;DB: commit (full sync write)
+            Svc-&gt;&gt;Hub: publish message to current members
+            Router--&gt;&gt;Client: 201 message
+        end
+    end
+</pre>
+<h3 id="819-get-apiv1messagesmessage_idthread">8.19 GET /api/v1/messages/{message_id}/thread</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as MessageService
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /api/v1/messages/{id}/thread
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: thread for user
+    Svc-&gt;&gt;DB: load message and visibility check
+    alt not visible
+        Svc--&gt;&gt;Client: 404 not_found
+    else visible
+        Svc-&gt;&gt;DB: load root and replies within visible ranges
+        Router--&gt;&gt;Client: 200 root and replies
+    end
+</pre>
+<h3 id="820-delete-apiv1messagesmessage_id">8.20 DELETE /api/v1/messages/{message_id}</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as MessageService
+    participant Att as AttachmentService
+    participant DB as Database
+    participant Hub as ConnectionHub
+    Client-&gt;&gt;MW: DELETE /api/v1/messages/{id}
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: delete
+    Svc-&gt;&gt;DB: load, visibility, author check
+    alt not visible
+        Svc--&gt;&gt;Client: 404
+    else not author
+        Svc--&gt;&gt;Client: 403 forbidden
+    else author
+        Svc-&gt;&gt;DB: begin: body null, deleted_at, delete mentions (index updated by trigger)
+        Svc-&gt;&gt;Att: mark attachments deleted
+        Svc-&gt;&gt;DB: commit
+        Att-&gt;&gt;Att: remove files from disk
+        Svc-&gt;&gt;Hub: publish message_deleted
+        Router--&gt;&gt;Client: 204
+    end
+</pre>
+<h3 id="821-post-apiv1attachments">8.21 POST /api/v1/attachments</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as AttachmentService
+    participant DB as Database
+    participant Disk as Attachment folder
+    Client-&gt;&gt;MW: POST /api/v1/attachments (multipart)
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: store upload
+    Svc-&gt;&gt;DB: membership check for conversation
+    Svc-&gt;&gt;Svc: check type, read up to size limit
+    alt too large or wrong type
+        Svc--&gt;&gt;Client: 413 or 415
+    else ok
+        Svc-&gt;&gt;Svc: scanner check
+        Svc-&gt;&gt;Disk: write file under generated name
+        Svc-&gt;&gt;DB: insert attachment (message null)
+        Router--&gt;&gt;Client: 201 attachment
+    end
+</pre>
+<h3 id="822-get-apiv1attachmentsattachment_id">8.22 GET /api/v1/attachments/{attachment_id}</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as AttachmentService
+    participant DB as Database
+    participant Disk as Attachment folder
+    Client-&gt;&gt;MW: GET /api/v1/attachments/{id}
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: open for user
+    Svc-&gt;&gt;DB: load attachment, check member and message visibility
+    alt not allowed, deleted, or rejected
+        Svc--&gt;&gt;Client: 404
+    else allowed
+        Svc-&gt;&gt;Disk: read file
+        Router--&gt;&gt;Client: 200 bytes (attachment, nosniff)
+    end
+</pre>
+<h3 id="823-get-apiv1search">8.23 GET /api/v1/search</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as SearchService
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /api/v1/search?q=budget
+    MW-&gt;&gt;Router: route and validate
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: search for user
+    Svc-&gt;&gt;Svc: turn text into safe quoted terms
+    Svc-&gt;&gt;DB: full-text match joined to the user's visible ranges
+    DB--&gt;&gt;Svc: newest matches, not deleted
+    Svc--&gt;&gt;Router: results with excerpts
+    Router--&gt;&gt;Client: 200 results
+</pre>
+<h3 id="824-get-apiv1notifications">8.24 GET /api/v1/notifications</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as NotificationService
+    participant DB as Database
+    Client-&gt;&gt;MW: GET /api/v1/notifications
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: list for user
+    Svc-&gt;&gt;DB: select latest 100, count unread
+    Router--&gt;&gt;Client: 200 notifications and unread count
+</pre>
+<h3 id="825-post-apiv1notificationsnotification_idread">8.25 POST /api/v1/notifications/{notification_id}/read</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant MW as Middleware
+    participant Router
+    participant Auth as AuthDependency
+    participant Svc as NotificationService
+    participant DB as Database
+    Client-&gt;&gt;MW: POST .../notifications/{id}/read
+    MW-&gt;&gt;Router: route
+    Router-&gt;&gt;Auth: verify token
+    Router-&gt;&gt;Svc: mark read
+    Svc-&gt;&gt;DB: update read_at where owner is caller
+    alt not the caller's
+        Svc--&gt;&gt;Client: 404
+    else
+        Router--&gt;&gt;Client: 200 notification
+    end
+</pre>
+<h3 id="826-real-time-flow-connect-and-resume-catch-up">8.26 Real-time flow: connect and resume (catch-up)</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant WS as WebSocket endpoint
+    participant Tok as TokenService
+    participant DB as Database
+    participant Hub as ConnectionHub
+    participant SLO as SloTracker
+    Client-&gt;&gt;WS: connect /ws?token=...
+    WS-&gt;&gt;Tok: verify token
+    WS-&gt;&gt;DB: load user, check active
+    alt invalid, expired, or deactivated
+        WS--&gt;&gt;Client: close 4401 or 4403
+        Note over WS,SLO: token and access refusals are client errors and are not counted
+    else ok
+        WS-&gt;&gt;Hub: register connection, start writer task
+        Hub--&gt;&gt;Client: hello {server_time, taken before any reading starts}
+        Client-&gt;&gt;Client: reload conversation list over HTTP (GET /api/v1/conversations)
+        Client-&gt;&gt;WS: resume {cursors, since}
+        loop each listed conversation
+            Hub-&gt;&gt;DB: messages after cursor within visible ranges (max 50)
+            Hub--&gt;&gt;Client: resume_page {messages, has_more}
+        end
+        Hub-&gt;&gt;DB: IDs deleted since &quot;since&quot; in the user's conversations
+        Hub--&gt;&gt;Client: resume_done {server_time, deleted}
+        WS-&gt;&gt;SLO: record successful request
+    end
+</pre>
+<h3 id="827-real-time-flow-push-a-new-message-and-confirm-delivery">8.27 Real-time flow: push a new message and confirm delivery</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Sender
+    participant Svc as MessageService
+    participant DB as Database
+    participant Hub as ConnectionHub
+    participant Q as Connection queue
+    participant Recipient
+    participant SLO as SloTracker
+    Sender-&gt;&gt;Svc: POST message (see 8.18)
+    Svc-&gt;&gt;DB: commit message (t0 = server receive time)
+    Svc-&gt;&gt;Hub: publish(message)
+    Hub-&gt;&gt;DB: current members of the conversation
+    loop each open connection of each member
+        Hub-&gt;&gt;Q: enqueue message frame, remember t0 per recipient connection
+        Q--&gt;&gt;Recipient: message frame
+        Recipient-&gt;&gt;Hub: ack {message_id}
+        Hub-&gt;&gt;SLO: record latency = now - t0 (recipients other than the sender)
+    end
+    Note over Hub,SLO: no ack within 10 seconds: record in the slowest bucket
+</pre>
+<h3 id="828-real-time-flow-member-removed-or-conversation-added">8.28 Real-time flow: member removed or conversation added</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Admin as Caller
+    participant Svc as ConversationService
+    participant DB as Database
+    participant Hub as ConnectionHub
+    participant Target as Affected user
+    Admin-&gt;&gt;Svc: add or remove member
+    Svc-&gt;&gt;DB: commit membership change
+    Svc-&gt;&gt;Hub: notify user
+    alt added
+        Hub--&gt;&gt;Target: conversation_added and notification
+    else removed
+        Hub--&gt;&gt;Target: conversation_removed
+        Note over Hub,Target: later publishes look up current members, so no more events are sent to this user for the conversation
+    end
+</pre>
+<h3 id="829-real-time-flow-user-deactivated-while-connected">8.29 Real-time flow: user deactivated while connected</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Admin
+    participant Svc as UserService
+    participant DB as Database
+    participant Hub as ConnectionHub
+    participant Conn as User's connections
+    Admin-&gt;&gt;Svc: deactivate user (see 8.10)
+    Svc-&gt;&gt;DB: commit status and membership changes
+    Svc-&gt;&gt;Hub: disconnect_user(user)
+    Hub--&gt;&gt;Conn: close with code 4403
+    Note over Conn: any later request or reconnect fails the active-user check (401)
+</pre>
+<h3 id="830-real-time-flow-deletion-reaches-online-and-offline-users">8.30 Real-time flow: deletion reaches online and offline users</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Author
+    participant Svc as MessageService
+    participant DB as Database
+    participant Hub as ConnectionHub
+    participant Online as Online member
+    participant Offline as Offline member
+    Author-&gt;&gt;Svc: DELETE message (see 8.20)
+    Svc-&gt;&gt;DB: commit tombstone
+    Svc-&gt;&gt;Hub: publish message_deleted
+    Hub--&gt;&gt;Online: message_deleted (screen updates at once)
+    Note over Offline: no connection, nothing sent
+    Offline-&gt;&gt;Hub: later: resume {cursors, since}
+    Hub-&gt;&gt;DB: IDs deleted after &quot;since&quot;
+    Hub--&gt;&gt;Offline: resume_done {deleted: [message_id]}
+    Note over Offline: the page removes the message
+</pre>
+<h3 id="831-real-time-flow-slow-client-queue-overflow-and-reconnect">8.31 Real-time flow: slow client, queue overflow, and reconnect</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Hub as ConnectionHub
+    participant Q as Connection queue (max 1000)
+    participant Client
+    Hub-&gt;&gt;Q: enqueue event
+    alt queue is full
+        Hub-&gt;&gt;Client: close with code 4408
+        Client-&gt;&gt;Client: wait (1 s doubling to 30 s)
+        Client-&gt;&gt;Hub: reconnect and send resume (flow 8.26)
+    else space available
+        Q--&gt;&gt;Client: send frame
+    end
+</pre>
+<h3 id="832-real-time-flow-token-expiry-while-connected">8.32 Real-time flow: token expiry while connected</h3>
+<pre class="mermaid">sequenceDiagram
+    participant Sweep as Hub sweeper (every 30 s)
+    participant Hub as ConnectionHub
+    participant Client
+    Sweep-&gt;&gt;Hub: find connections past token expiry
+    Hub--&gt;&gt;Client: close with code 4401
+    Client-&gt;&gt;Client: show &quot;session expired&quot;, keep unsent text
+</pre>
+<h2 id="9-meeting-the-fundamentals">9. Meeting the Fundamentals</h2>
+<h3 id="91-customer-centric-slos">9.1 Customer-centric SLOs</h3>
+<p>These are the objectives from the requirements (SLO-01 to SLO-05). Windows: <strong>1 hour</strong>, <strong>24 hours</strong>, <strong>28 days rolling</strong>.</p>
+<h4 id="how-the-design-measures-them">How the design measures them</h4>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>How</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Success Rate</td>
+<td>The middleware reports one outcome per customer API call. A call fails when the status is 5xx, when it raises an unhandled error, or when it takes more than 10 seconds. A 4xx is a client error and is not counted. A WebSocket connection that is refused for a service reason, or a resume that errors, also counts as failed. Health, metrics, objectives, and static files are not counted.</td>
+<td>SLO-01, DD-14</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>For each message delivered to a recipient with an open connection, the hub records the time between the server receiving the message and the recipient's confirmation. After 10 seconds with no confirmation, the delivery is recorded in the slowest bucket. The sender's own devices are not counted.</td>
+<td>SLO-02, DD-13</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>Counts are kept in one-minute buckets, saved to the database, and summed for the last 60 minutes, the last 24 hours, and the last 28 days. They survive restarts.</td>
+<td>DD-15</td>
+</tr>
+<tr>
+<td>Percentiles</td>
+<td>Latency is counted in fixed buckets whose edges include 200, 400, 700, 1000, and 2000 ms. A percentile is the upper edge of the bucket where the running count reaches that share. This never understates the latency.</td>
+<td>DD-13</td>
+</tr>
+<tr>
+<td>Too few samples</td>
+<td>A window with fewer than 30 requests, or fewer than 30 latency samples (100 for P99), reports "insufficient data".</td>
+<td>SLO-05, DD-16</td>
+</tr>
+<tr>
+<td>Warning</td>
+<td>If the 1-hour Success Rate is below 99.9 percent while the 24-hour value is within target, the report sets <code>burn_rate_warning</code>.</td>
+<td>SLO-04</td>
+</tr>
+</tbody>
+</table>
+<h4 id="success-rate-slo-999-percent">Success Rate SLO: 99.9 percent</h4>
+<table>
+<thead>
+<tr>
+<th>Window</th>
+<th>What 99.9 percent allows</th>
+<th>How the design supports it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 hour</td>
+<td>1 failed request per 1,000. At about 100 requests an hour (A-28), a single failure is a breach, so this window warns and does not decide compliance.</td>
+<td>Failure handling in section 10, the warning rule, and the minimum sample rule keep the window useful and not noisy.</td>
+</tr>
+<tr>
+<td>24 hours</td>
+<td>About 86 seconds of full outage if traffic were steady, or about 2 failures per 2,000 requests.</td>
+<td>Atomic writes, idempotent retry, and a bounded catch-up keep a restart or a network drop from becoming failed requests.</td>
+</tr>
+<tr>
+<td>28 days</td>
+<td>About 40 minutes of full outage across the window. This is the compliance window and the error budget.</td>
+<td>Deployments that restart one process are the main risk. See the shortcut R-01 and the production mitigation: at least two instances, rolling deploys, and zone redundancy (A-26, NFR-01).</td>
+</tr>
+</tbody>
+</table>
+<p>Design features that protect the Success Rate:</p>
+<ul>
+<li><strong>No partial writes:</strong> every change is one transaction (DD-03, DD-05).</li>
+<li><strong>Safe retry:</strong> a client retry returns the stored message, so a transient failure does not become a second failure or a duplicate (DD-04).</li>
+<li><strong>Bounded work per request:</strong> pages of 50, upload limit of 25 MB, message length of 4,000, 10-second request limit, and the 30-per-minute rate limit keep one request from starving others (DD-23).</li>
+<li><strong>Isolated slow clients:</strong> per-connection queues keep one slow client from slowing the rest (DD-01, pattern table).</li>
+<li><strong>Blind spot, named:</strong> a service that is down records nothing, so the in-process measure cannot see a full outage. Production adds an external availability probe and client-side telemetry (R-07).</li>
+</ul>
+<h4 id="latency-slo">Latency SLO</h4>
+<p>The measured span is server receive to recipient confirmation (SLO-02). This table shows the budget design for each percentile. The values are a design allocation to be confirmed by load testing (test T-60 in <a href="chatapp.testspecs.html">chatapp.testspecs.md</a>). On one machine over the local network, the network part is close to zero, so a local test only proves the service part.</p>
+<table>
+<thead>
+<tr>
+<th>Percentile</th>
+<th>Target</th>
+<th>Service part (validate, authorize, commit, enqueue)</th>
+<th>Delivery part (send, client handling, confirmation back)</th>
+<th>Total design budget</th>
+<th>Margin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P50</td>
+<td>200 ms</td>
+<td>15 ms</td>
+<td>80 ms</td>
+<td>95 ms</td>
+<td>105 ms</td>
+</tr>
+<tr>
+<td>P75</td>
+<td>400 ms</td>
+<td>30 ms</td>
+<td>150 ms</td>
+<td>180 ms</td>
+<td>220 ms</td>
+</tr>
+<tr>
+<td>P90</td>
+<td>700 ms</td>
+<td>60 ms</td>
+<td>300 ms</td>
+<td>360 ms</td>
+<td>340 ms</td>
+</tr>
+<tr>
+<td>P95</td>
+<td>1,000 ms</td>
+<td>100 ms</td>
+<td>450 ms</td>
+<td>550 ms</td>
+<td>450 ms</td>
+</tr>
+<tr>
+<td>P99</td>
+<td>2,000 ms</td>
+<td>250 ms</td>
+<td>900 ms</td>
+<td>1,150 ms</td>
+<td>850 ms</td>
+</tr>
+</tbody>
+</table>
+<p>Assumed client network round trip: about 60 ms typical (P50) and up to 600 ms at P99, for corporate and home networks. This is an assumption, not a measurement, and it should be replaced by measured values from client telemetry after launch.</p>
+<p>How the design keeps the service part small:</p>
+<ul>
+<li>One short transaction with an indexed insert and a single-row sequence update. No network hop to a database.</li>
+<li>The membership check and the sequence assignment are single indexed lookups.</li>
+<li>Fan-out only places an item on a queue. The writer tasks send in parallel, so recipients do not wait for each other.</li>
+<li>Heavy work (attachment scanning, notifications to an outbox, search index) is either done before the send (uploads) or inside the same short transaction (index by trigger), so nothing slow sits in the delivery path.</li>
+<li>The tail (P99) is driven by disk sync time and client networks. Full synchronous writes cost a few milliseconds on a laptop disk, so the 250 ms allocation has wide margin. In production, zone-redundant database commits add time, which is why the service part grows for production and why the margin is kept large.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Window</th>
+<th>How the design supports it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 hour</td>
+<td>Per-percentile status with the minimum sample rule. A quiet hour reports "insufficient data" instead of a noisy value.</td>
+</tr>
+<tr>
+<td>24 hours</td>
+<td>Detects daily patterns such as a slow period after a deployment.</td>
+</tr>
+<tr>
+<td>28 days</td>
+<td>Defines compliance. The percentile counts are summed from saved buckets, so a restart does not reset it.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-quality">9.2 Quality</h3>
+<ul>
+<li>Every core promise (order, no duplicates, catch-up, permissions, deletion) has automated tests (NFR-06, A-14).</li>
+<li>One server-assigned order and one idempotency rule remove the most common chat defects (DD-03, DD-04).</li>
+<li>Strict input validation at the transport layer and rules in one service layer.</li>
+</ul>
+<h3 id="93-capacity">9.3 Capacity</h3>
+<ul>
+<li>Sized for 10 users, 2,000 messages a day, 20 attachments a day, 10 connections (A-28). One process and one SQLite file handle this with large headroom. The requirement of 10 times headroom (NFR-04) is met on a single instance by design: paging, bounded queues, and indexes.</li>
+<li>Storage growth is visible: the metrics page reports database size, attachment bytes, and message count (OPS-01).</li>
+<li>Unbounded history is not assumed: retention is configurable (DD-18).</li>
+<li>Growth beyond one process needs the production changes in section 11.</li>
+</ul>
+<h3 id="94-availability">9.4 Availability</h3>
+<ul>
+<li>The target is 99.9 percent a month (A-26). A single instance cannot meet it through deployments. The lab design is built so the production design can: stateless services other than the hub, a database that is the only source of truth, and clients that reconnect and resume on their own (flow 8.26).</li>
+<li>The production plan: at least two instances behind Azure Front Door or Application Gateway, rolling deployment, zone-redundant database, and an external availability probe.</li>
+</ul>
+<h3 id="95-resiliency">9.5 Resiliency</h3>
+<ul>
+<li>An acknowledged message is on disk (full synchronous write, DD-05), so a crash or restart loses nothing acknowledged (NFR-02).</li>
+<li>The client keeps unsent messages and retries with the same ID.</li>
+<li>Catch-up (resume) rebuilds any client's view from the database after any outage, in pages (DD-23).</li>
+<li>A backup command copies the database safely while running (SQLite backup interface). The recovery time of 4 hours and quarterly restore tests are met by procedure in the lab and by managed backups in production (NFR-03).</li>
+</ul>
+<h3 id="96-security">9.6 Security</h3>
+<ul>
+<li>Membership is checked in the service layer on every request and on every real-time connection, and a non-member and a missing item look the same (DD-06, DD-08).</li>
+<li>The signed token has an expiry of 8 hours, and the active-user check happens on every request, so deactivation is immediate (DD-07, SEC-09).</li>
+<li>No endpoint returns message content to an administrator by role (DD-09, SEC-04).</li>
+<li>Administrative actions are audited in the same transaction (DD-19).</li>
+<li>Output is escaped before markdown rules run, with a strict content security policy, <code>nosniff</code>, <code>no-referrer</code>, <code>frame-ancestors 'none'</code>, and attachment downloads as attachments only (DD-10).</li>
+<li>Uploads are limited by size and type, stored under generated names, and pass through a scanner interface (DD-22).</li>
+<li>Search queries are turned into quoted words, so users cannot inject search syntax.</li>
+<li>The lab gaps (no TLS, no Entra ID, no encryption at rest, scanner stub) are listed in section 11.</li>
+</ul>
+<h3 id="97-privacy">9.7 Privacy</h3>
+<ul>
+<li>Deleting a message empties it, removes its files, mentions, and index entry in one transaction, so no copy the service controls survives (DD-11, PRV-01, PRV-02).</li>
+<li>Offline devices drop deleted messages on reconnect (DD-12).</li>
+<li>Notifications and the email outbox hold no message text (DD-24, PRV-04).</li>
+<li>Logs hold no message text (DD-21, PRV-03).</li>
+<li>Retention is configurable, and no logic assumes "keep forever" (DD-18).</li>
+<li>Compliance rules are still an open item (A-18), and the data is classified as Confidential for design purposes (SEC-07).</li>
+</ul>
+<h3 id="98-accessibility">9.8 Accessibility</h3>
+<ul>
+<li>The client follows WCAG 2.1 AA practice: semantic landmarks, labeled controls, visible focus, keyboard-only use, a skip link, high contrast, and no reliance on color (ACC-01, funcspecs section 9).</li>
+<li>New messages and errors are announced through polite live regions without taking focus (ACC-02).</li>
+<li>Threads, notifications, search results, and mentions are labeled regions with managed focus (ACC-03).</li>
+<li>Rendering is by safe DOM construction, so assistive technology reads real elements.</li>
+<li>A formal audit and testing with screen readers are still needed and are not done in the lab (R-14).</li>
+</ul>
+<h3 id="99-supportability">9.9 Supportability</h3>
+<ul>
+<li>Every response has a correlation ID that matches the log line, and the user sees it in the error text (OPS-05).</li>
+<li>Health, readiness, metrics, and the objectives report give operators a view without access to content (OPS-01, SLO-03).</li>
+<li>Configuration comes from the environment, so there is one build for all environments (DD-17).</li>
+<li>The README holds the runbook for common failures (OPS-03). Named ownership and on-call remain an open item (A-32).</li>
+</ul>
+<h2 id="10-cross-cutting-concerns">10. Cross-cutting concerns</h2>
+<h3 id="error-handling">Error handling</h3>
+<ul>
+<li>All errors use one shape: <code>{"error": {"code", "message", "request_id"}}</code> (DD-20).</li>
+<li>Application errors carry a stable code (<code>unauthorized</code>, <code>forbidden</code>, <code>not_found</code>, <code>validation_error</code>, <code>conflict</code>, <code>conversation_closed</code>, <code>payload_too_large</code>, <code>unsupported_media_type</code>, <code>rate_limited</code>, <code>internal_error</code>) and a plain message that is safe to show.</li>
+<li>Validation errors from the transport layer become 400 <code>validation_error</code> with the field named.</li>
+<li>Unexpected errors are caught by the middleware, logged with the stack trace and correlation ID, counted as failed requests, and answered with a generic 500. Internal details are never returned.</li>
+<li>The database layer rolls back on any exception, so no partial change is kept.</li>
+<li>Real-time errors close the connection with a code the client understands (4401 session, 4403 access removed, 4408 queue full). The client then acts as described in the functional specs.</li>
+<li>The client retries sends with the same ID and shows status (FR-44).</li>
+</ul>
+<h3 id="observability">Observability</h3>
+<ul>
+<li><strong>Logs:</strong> one JSON line per request with time, level, correlation ID, method, route, status, duration in milliseconds, and user ID. Real-time events log connect, disconnect, and close codes. No bodies, no message text, no file names (DD-21).</li>
+<li><strong>Metrics:</strong> request counts by status, open connections, deliveries confirmed and timed out, database size, attachment bytes, and message count (<code>/metrics</code>).</li>
+<li><strong>Objectives:</strong> the SLO tracker and <code>/api/v1/slo</code>.</li>
+<li><strong>Correlation:</strong> <code>X-Request-ID</code> is accepted from the caller if it is well formed, otherwise created, and is in the response, the log, and the error body.</li>
+<li><strong>Production:</strong> the same events go to OpenTelemetry and Azure Monitor (section 11).</li>
+</ul>
+<h3 id="configuration">Configuration</h3>
+<p>All settings are environment variables with a <code>CHATAPP_</code> prefix and safe defaults (DD-17).</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CHATAPP_DB_PATH</code></td>
+<td><code>data/chatapp.db</code></td>
+<td>Database file</td>
+</tr>
+<tr>
+<td><code>CHATAPP_ATTACHMENT_DIR</code></td>
+<td><code>data/attachments</code></td>
+<td>Attachment folder</td>
+</tr>
+<tr>
+<td><code>CHATAPP_SECRET_KEY</code></td>
+<td>generated and saved in <code>data/secret.key</code></td>
+<td>Token signing key</td>
+</tr>
+<tr>
+<td><code>CHATAPP_DEV_AUTH</code></td>
+<td><code>true</code></td>
+<td>Enables the development sign-in (lab only)</td>
+</tr>
+<tr>
+<td><code>CHATAPP_ADMIN_USERNAMES</code></td>
+<td><code>admin1,admin2</code></td>
+<td>Administrators created at first start (A-30)</td>
+</tr>
+<tr>
+<td><code>CHATAPP_SEED_USERS</code></td>
+<td><code>alice,bob,carol</code></td>
+<td>Sample members created at first start (lab only)</td>
+</tr>
+<tr>
+<td><code>CHATAPP_SESSION_HOURS</code></td>
+<td><code>8</code></td>
+<td>Session life</td>
+</tr>
+<tr>
+<td><code>CHATAPP_RATE_LIMIT_PER_MIN</code></td>
+<td><code>30</code></td>
+<td>Messages per user per minute</td>
+</tr>
+<tr>
+<td><code>CHATAPP_MAX_UPLOAD_MB</code></td>
+<td><code>25</code></td>
+<td>Upload limit</td>
+</tr>
+<tr>
+<td><code>CHATAPP_REQUEST_TIMEOUT_S</code></td>
+<td><code>10</code></td>
+<td>Failure threshold for the Success Rate</td>
+</tr>
+<tr>
+<td><code>CHATAPP_RETENTION_DAYS</code></td>
+<td><code>0</code> (off)</td>
+<td>Message content older than this is removed</td>
+</tr>
+<tr>
+<td><code>CHATAPP_LOG_LEVEL</code></td>
+<td><code>INFO</code></td>
+<td>Log level</td>
+</tr>
+</tbody>
+</table>
+<h2 id="11-architectural-risks-and-lab-shortcuts">11. Architectural risks and lab shortcuts</h2>
+<h3 id="111-lab-shortcuts-not-for-production-microsoft-software">11.1 Lab shortcuts (not for production Microsoft software)</h3>
+<p>Every item below was chosen for the lab constraints of running locally with no setup. Each names the production-appropriate alternative and how to reduce the risk in production.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Lab choice</th>
+<th>Risk it carries</th>
+<th>Production alternative</th>
+<th>Mitigation in production</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R-01</td>
+<td>One process, one machine, no replication</td>
+<td>Any restart, crash, or machine loss makes the service unavailable. The 99.9 percent target cannot be met.</td>
+<td>At least two instances in Azure App Service or Container Apps across availability zones, behind Azure Front Door or Application Gateway</td>
+<td>Rolling deployment, health-probe based routing, autoscale rules, and an external availability test</td>
+<td>A-26, NFR-01, SLO-01</td>
+</tr>
+<tr>
+<td>R-02</td>
+<td>SQLite file on local disk (not a durable, replicated store)</td>
+<td>Disk loss loses all data. One writer at a time. No point-in-time recovery. Not shareable by several instances.</td>
+<td>Azure SQL Database or Azure Database for PostgreSQL Flexible Server, zone-redundant with geo-replication and point-in-time restore</td>
+<td>Synchronous replicas for zero data loss on acknowledged messages, backups retained to cover the 35-day delete rule, quarterly restore tests</td>
+<td>A-27, NFR-02, NFR-03</td>
+</tr>
+<tr>
+<td>R-03</td>
+<td>In-process connection hub</td>
+<td>Works for one instance only. A second instance would not deliver to users connected to the first. Restart drops all connections at once.</td>
+<td>Azure Web PubSub or Azure SignalR Service</td>
+<td>The managed service holds connections, so deployments do not drop them. Clients still resume by cursor. Add jittered reconnect to avoid a thundering herd.</td>
+<td>A-10, NFR-01</td>
+</tr>
+<tr>
+<td>R-04</td>
+<td>Development sign-in with a self-issued token, no Entra ID, no MFA</td>
+<td>Anyone who knows a user name can sign in as that user. This is acceptable only on a developer machine.</td>
+<td>Microsoft Entra ID with OpenID Connect (MSAL), token validation against the Entra signing keys, conditional access with MFA</td>
+<td>Disable <code>CHATAPP_DEV_AUTH</code> in every non-development environment and fail startup if it is on. Map the team's Entra group to membership. Short-lived access tokens with refresh.</td>
+<td>A-03, FR-01, SEC-06</td>
+</tr>
+<tr>
+<td>R-05</td>
+<td>Plain HTTP and WebSocket on localhost</td>
+<td>Traffic is readable on the network.</td>
+<td>TLS 1.2 or later, ended at Front Door or App Service, with HSTS</td>
+<td>Enforce HTTPS only, redirect HTTP, and use <code>wss</code> for real-time. Use managed certificates.</td>
+<td>A-22, SEC-01</td>
+</tr>
+<tr>
+<td>R-06</td>
+<td>No encryption at rest. Files and database are plain on disk.</td>
+<td>Disk theft or access exposes confidential chats.</td>
+<td>Azure storage and database service encryption with customer-managed keys in Azure Key Vault</td>
+<td>Rotate keys, restrict key access with managed identities, encrypt backups</td>
+<td>A-22, SEC-02</td>
+</tr>
+<tr>
+<td>R-07</td>
+<td>The SLO tracker lives in the service and writes to the same database</td>
+<td>A fully down service records nothing, so an outage is invisible to the measurement. The tracker shares fate with the app.</td>
+<td>OpenTelemetry to Azure Monitor and Application Insights, plus availability tests and client-side telemetry. SLO queries in Log Analytics (KQL)</td>
+<td>Alert rules on multi-window burn rate, an external probe from several regions, and a dashboard owned by the on-call team</td>
+<td>A-33, SLO-01, OPS-02</td>
+</tr>
+<tr>
+<td>R-08</td>
+<td>Attachments on local disk, scanner is a stub that accepts every file</td>
+<td>Malware can be stored and served to team members. Files are lost with the disk.</td>
+<td>Azure Blob Storage with Microsoft Defender for Storage malware scanning, private endpoints, and time-limited access tokens</td>
+<td>Hold a file as <code>pending</code> until the scan result arrives and never serve it before. Quarantine rejected files. Apply lifecycle rules matching retention.</td>
+<td>A-23, FR-24, SEC-08</td>
+</tr>
+<tr>
+<td>R-09</td>
+<td>Full-text search with SQLite FTS5</td>
+<td>Does not scale out. Rebuilding is manual.</td>
+<td>Azure AI Search or database full-text search with security trimming on membership</td>
+<td>Filter every query by the user's visible ranges server-side. Delete index entries in the same flow as message deletion and verify with a test.</td>
+<td>A-07, A-20, FR-25</td>
+</tr>
+<tr>
+<td>R-10</td>
+<td>Rate limiter in process memory</td>
+<td>Resets on restart. Does not work across instances.</td>
+<td>Shared limiter in Azure Cache for Redis, or limits at Azure API Management or Front Door</td>
+<td>Keep per-user limits server-side. Add per-IP limits at the edge.</td>
+<td>A-31, FR-46</td>
+</tr>
+<tr>
+<td>R-11</td>
+<td>Signing key stored in a local file</td>
+<td>The key can be read from disk.</td>
+<td>Azure Key Vault with managed identity (unnecessary once Entra ID validates tokens)</td>
+<td>No secrets in configuration or source. Rotate keys.</td>
+<td>A-22</td>
+</tr>
+<tr>
+<td>R-12</td>
+<td>Token passed in the WebSocket URL query</td>
+<td>URLs may be logged by proxies and servers, which would expose a token.</td>
+<td>Authenticate with a short-lived, single-use connection ticket obtained over an authenticated call, or use the managed service's client access tokens</td>
+<td>Strip query strings from logs. Make tickets expire in seconds.</td>
+<td>A-22, SEC-03</td>
+</tr>
+<tr>
+<td>R-13</td>
+<td>Email and push are an outbox that is never sent</td>
+<td>Mentions are not delivered to offline users outside the app.</td>
+<td>Azure Communication Services Email, Azure Notification Hubs for push</td>
+<td>Keep the no-message-text rule in templates. Honor user preferences and rate-limit.</td>
+<td>A-07, A-20, FR-26</td>
+</tr>
+<tr>
+<td>R-14</td>
+<td>No formal accessibility audit</td>
+<td>Hidden barriers may remain.</td>
+<td>Accessibility Insights automated checks in the build, manual keyboard and screen reader testing, an accessibility review before launch</td>
+<td>Make the audit a launch gate. Record the team's needs (open item).</td>
+<td>A-24, ACC-01 to ACC-03</td>
+</tr>
+<tr>
+<td>R-15</td>
+<td>Audit log in the same mutable database</td>
+<td>An administrator with database access could change it.</td>
+<td>Append-only audit stream to Log Analytics or immutable blob storage</td>
+<td>Write-once retention. Alert on unusual administrative activity.</td>
+<td>A-22, SEC-05</td>
+</tr>
+<tr>
+<td>R-16</td>
+<td>No backups or disaster recovery beyond a manual command</td>
+<td>Total loss on disk failure or region loss. The 4-hour recovery objective cannot be met.</td>
+<td>Managed automated backups and cross-region replication</td>
+<td>Quarterly restore drill, and documented regional failover</td>
+<td>A-27, NFR-03</td>
+</tr>
+<tr>
+<td>R-17</td>
+<td>Database calls run on the event loop</td>
+<td>A slow query would pause all connections at higher load. Fine at 10 users.</td>
+<td>Async database driver with a connection pool, and query timeouts</td>
+<td>Load tests at 10 times expected load, and query plan review</td>
+<td>A-28, NFR-04</td>
+</tr>
+<tr>
+<td>R-18</td>
+<td>Administrators and sample users created from environment settings</td>
+<td>A mistaken setting could leave no administrator, or create sample users in production.</td>
+<td>Provision users and administrators from Entra ID groups</td>
+<td>Remove seeding in production builds. Verify two administrators at startup.</td>
+<td>A-30, FR-03</td>
+</tr>
+<tr>
+<td>R-19</td>
+<td>No automated deployment, no environment separation in the lab</td>
+<td>Manual deployment is error-prone.</td>
+<td>Infrastructure as code (Bicep) and a deployment pipeline with separate development, test, and production</td>
+<td>Never copy production data to lower environments</td>
+<td>A-25, A-32, NFR-08, OPS-04</td>
+</tr>
+<tr>
+<td>R-20</td>
+<td>Single region, no web application firewall</td>
+<td>Regional failure and common web attacks are not covered.</td>
+<td>Azure Front Door with WAF, and a second region as needed</td>
+<td>Rate limits and managed rule sets at the edge</td>
+<td>A-26, A-22</td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-the-built-in-assistant-added-at-the-owners-request">11.2 The built-in assistant (added at the owner's request)</h3>
+<p>The assistant ("Copilot") is built into the service. See requirements section 10 (ASST-01 to ASST-09).</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Component</td>
+<td><code>CopilotService</code> (in <code>app/copilot.py</code>). <strong>Responsibilities:</strong> decide when to answer, build the answer, post it as the assistant account, join conversations, give each person a private chat. <strong>Collaborators:</strong> MessageService, ConversationService, SearchService, ConnectionHub, SloTracker, RealtimeData.</td>
+</tr>
+<tr>
+<td>Identity</td>
+<td>A user row with <code>is_bot = 1</code>. It cannot sign in or be deactivated, has no notifications or email outbox, and is not counted toward member limits.</td>
+</tr>
+<tr>
+<td>Trigger</td>
+<td>After a message is stored and published, <code>MessageService.send</code> calls the assistant. The reply is scheduled on the event loop after a short delay, so it does not add to the sender's request time or to the delivery latency of the sender's message (ASST-09).</td>
+</tr>
+<tr>
+<td>Privacy boundary</td>
+<td>Replies in a group draw only on that conversation and only on what the asker may see. Cross-conversation answers (history, details, mentions, unread, search everywhere) are produced only in the person's private chat and only while their switch is on (ASST-05).</td>
+</tr>
+<tr>
+<td>Live data</td>
+<td><code>RealtimeData</code>: time zones offline (tzdata), weather and unknown-place time through Open-Meteo. The call runs on a worker thread. Only a place name is sent (ASST-07). Switch: <code>CHATAPP_COPILOT_WEB</code>.</td>
+</tr>
+<tr>
+<td>Replaceable part</td>
+<td><code>AiBackend</code> (<code>app/ai.py</code>) is the model connection: Ollama on this computer by default, or Azure OpenAI by configuration. Exact commands stay in code. If the model fails, <code>answer()</code> falls back to the built-in reply (risk R-21).</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Risk (lab choice)</th>
+<th>Production alternative and mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R-21</td>
+<td>The model on this computer is small and slower than a hosted model, and Copilot's answers can be wrong. A remote model would send chat text to another service.</td>
+<td>Use an approved model in the organization's tenant (Azure OpenAI) after a data-protection review (A-18), with content filtering and no training on chat data. Keep the privacy boundary: only what the asker may see goes into the prompt, and other people's messages are labelled untrusted.</td>
+</tr>
+<tr>
+<td>R-22</td>
+<td>Live lookups call a free public service with no agreement.</td>
+<td>An approved weather and time source behind an outbound proxy, or switch the lookups off. Only the place name is sent.</td>
+</tr>
+<tr>
+<td>R-23</td>
+<td>The assistant is a member of every group, so it can technically read them, and replies to everything by default.</td>
+<td>Per-conversation opt-in by members, a visible indicator, a retention rule for anything it stores, and team consent before launch.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113-design-risks-that-remain-in-any-environment">11.3 Design risks that remain in any environment</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Risk</th>
+<th>Mitigation</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D-01</td>
+<td>Message order depends on one atomic sequence per conversation. If a future change allowed two writers without a database-level guarantee, order could break.</td>
+<td>Keep sequence assignment inside the database transaction. A test sends concurrent messages and checks gap-free, unique numbers (T-12).</td>
+<td>DD-03, FR-41</td>
+</tr>
+<tr>
+<td>D-02</td>
+<td>Many clients reconnecting together after a deployment could overload catch-up.</td>
+<td>Page size of 50, jittered backoff, and a per-connection resume limit. Load-test the reconnect case.</td>
+<td>DD-23, NFR-07</td>
+</tr>
+<tr>
+<td>D-03</td>
+<td>Deleting content from backups cannot be immediate.</td>
+<td>State the backup expiry (35 days) to users and keep backups encrypted and access-restricted.</td>
+<td>A-17, FR-28</td>
+</tr>
+<tr>
+<td>D-04</td>
+<td>Retention is a placeholder. A late compliance answer could change the data model (for example legal hold).</td>
+<td>Keep retention a setting and the deletion path single. Raise the open question early.</td>
+<td>A-16, A-18</td>
+</tr>
+<tr>
+<td>D-05</td>
+<td>Markdown rendering is client code. A flaw there could allow script injection.</td>
+<td>Escape first, allow only a small set of rules, a strict content security policy, and tests with hostile inputs (T-40).</td>
+<td>DD-10, FR-21</td>
+</tr>
+<tr>
+<td>D-06</td>
+<td>The latency measure depends on client confirmations. A client that does not confirm looks slow.</td>
+<td>Count it in the slowest bucket on purpose, and investigate through correlation IDs.</td>
+<td>DD-13, SLO-02</td>
+</tr>
+<tr>
+<td>D-07</td>
+<td>The proposed numbers (limits, targets, budgets) are unconfirmed.</td>
+<td>They are in one settings file and in the assumptions list for confirmation.</td>
+<td>A-26 to A-31</td>
+</tr>
+</tbody>
+</table></main></div>
+<footer>Lab build, not production software. Generated from the markdown documents in the repository by tools/build_site.py.</footer>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+mermaid.initialize({startOnLoad:true,securityLevel:"strict",theme:"default"});
+</script></body></html>

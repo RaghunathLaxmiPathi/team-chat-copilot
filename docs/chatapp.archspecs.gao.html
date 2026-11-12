@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Architecture critique - Team Chat with Copilot</title><style>
+:root{--text:#111827;--muted:#4b5563;--accent:#1d4ed8;--border:#d1d5db;--panel:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,"Segoe UI",sans-serif;color:var(--text)}
+a{color:var(--accent)}a:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#000;color:#fff;padding:6px 10px}
+header.site{background:#0f172a;color:#fff;padding:12px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.site a{color:#fff;text-decoration:none}header.site .brand{font-weight:700;font-size:1.1rem}
+header.site nav a{margin-right:14px;opacity:.9}header.site nav a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:20px}
+aside.side{font-size:.92rem;position:sticky;top:12px;align-self:start}
+aside.side h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+aside.side ul{list-style:none;margin:0 0 16px;padding:0}aside.side li a{display:block;padding:4px 8px;border-radius:6px;text-decoration:none}
+aside.side li a[aria-current=page]{background:var(--panel);font-weight:700}
+main{min-width:0}main h1{margin-top:0}
+main table{border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
+main th,main td{border:1px solid var(--border);padding:6px 10px;vertical-align:top;font-size:.93rem}
+main th{background:var(--panel);text-align:left}
+main blockquote{margin:12px 0;padding:8px 16px;border-left:4px solid var(--accent);background:#eff6ff}
+main code{background:var(--panel);padding:1px 5px;border-radius:4px;font-size:.9em}
+main pre{background:#0f172a;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto}
+main pre code{background:none;color:inherit;padding:0}
+pre.mermaid{background:#fff;color:var(--text);border:1px solid var(--border);text-align:center}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px}
+.hero h1{color:#fff;font-size:2rem;margin:0 0 8px}.hero p{max-width:60ch;color:#dbeafe}
+.hero a.btn{display:inline-block;background:#fff;color:#0f172a;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px}.card h3{margin:0 0 6px;font-size:1.02rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+footer{max-width:1280px;margin:0 auto;padding:20px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}aside.side{position:static}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site"><a class="brand" href="index.html">Team Chat with Copilot</a>
+<nav aria-label="Main"><a href="index.html">Overview</a><a href="chatapp.requirements.html">Requirements</a>
+<a href="chatapp.archspecs.html">Architecture</a><a href="https://github.com/RaghunathLaxmiPathi/team-chat-copilot">Source code</a></nav></header>
+<div class="layout"><aside class="side" aria-label="Documents"><h2>Project</h2><ul><li><a href="index.html">Overview</a></li></ul><h2>Design documents</h2><ul><li><a href="chatapp.assumptions.html">Assumptions</a></li><li><a href="chatapp.assumptions.gao.html">Assumptions critique</a></li><li><a href="chatapp.requirements.html">Requirements</a></li><li><a href="chatapp.requirements.gao.html">Requirements critique</a></li><li><a href="chatapp.funcspecs.html">Functional specifications</a></li><li><a href="chatapp.funcspecs.gao.html">Functional specifications critique</a></li><li><a href="chatapp.archspecs.html">Architecture specifications</a></li><li><a href="chatapp.archspecs.gao.html" aria-current="page">Architecture critique</a></li><li><a href="chatapp.testspecs.html">Test specifications</a></li><li><a href="chatapp.testspecs.gao.html">Test specifications critique</a></li><li><a href="chatapp.implementation.gao.html">Implementation critique</a></li></ul></aside><main id="content"><h1 id="architecture-specifications-critique-gao">Architecture Specifications Critique (GAO)</h1>
+<p>Date: 2026-11-11
+Artifact reviewed: <a href="chatapp.archspecs.html">chatapp.archspecs.md</a></p>
+<blockquote>
+<p><strong>Status at a glance</strong>
+8 findings: 0 High, 5 Medium, 3 Low. Disposition follows the fixed rule: Medium is Address and Low is Defer. The 5 Medium findings have been applied to the architecture document and are marked Done.</p>
+</blockquote>
+<h2 id="checks-that-came-up-clean">Checks that came up clean</h2>
+<ul>
+<li><strong>Endpoint coverage:</strong> every endpoint in section 6 has a sequence diagram in section 8, and every real-time flow (connect and resume, push and confirm, membership change, deactivation, deletion for online and offline users, queue overflow, token expiry) has one.</li>
+<li><strong>Stack constraint:</strong> nothing in the stack needs a separate database server, broker, or container to run locally.</li>
+<li><strong>Lab shortcuts:</strong> each shortcut in section 11.1 names a production alternative and a mitigation. No shortcut was found that is missing from the list.</li>
+<li><strong>Traceability:</strong> every design decision (DD-01 to DD-24) names a requirement or assumption.</li>
+<li><strong>SLO coverage:</strong> both SLOs are covered at every percentile and every window, with measurement method, minimum sample rule, and budget.</li>
+</ul>
+<h2 id="medium-severity">Medium severity</h2>
+<h3 id="ar-01-the-connect-flow-counted-client-side-refusals-as-failures">AR-01: The connect flow counted client-side refusals as failures</h3>
+<ul>
+<li><strong>Description:</strong> Diagram 8.26 recorded a failed request when a connection was refused for an invalid token, an expired token, or a deactivated user. SLO-01 excludes client errors.</li>
+<li><strong>Why it matters:</strong> Expired sessions and deactivations would lower the Success Rate even though the service worked correctly. The document contradicted its own requirement.</li>
+<li><strong>Recommended action:</strong> State that refusals for token or access reasons are not counted.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="ar-02-the-latency-budget-has-no-stated-basis-for-its-network-figures">AR-02: The latency budget has no stated basis for its network figures</h3>
+<ul>
+<li><strong>Description:</strong> The "delivery part" of the latency budget assumes client network times that were not written down.</li>
+<li><strong>Why it matters:</strong> A budget that looks measured but is a guess gives false confidence, especially at P99.</li>
+<li><strong>Recommended action:</strong> State the assumed client round-trip times and say they must be replaced by measured values.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="ar-03-conversations-added-or-removed-while-offline-are-not-replayed">AR-03: Conversations added or removed while offline are not replayed</h3>
+<ul>
+<li><strong>Description:</strong> The resume flow replays messages for the conversations the client lists. Events for being added to or removed from a conversation while offline are not replayed, and the document did not say how the client finds out.</li>
+<li><strong>Why it matters:</strong> A removed user could keep seeing a conversation in the list, and an added user would not see a new one until a refresh.</li>
+<li><strong>Recommended action:</strong> Require the client to reload its conversation list over HTTP before sending the resume.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="ar-04-the-deletion-catch-up-could-miss-a-deletion-made-during-the-resume">AR-04: The deletion catch-up could miss a deletion made during the resume</h3>
+<ul>
+<li><strong>Description:</strong> The deleted-message list uses the server time of the last sync. If that time were taken after reading, a message deleted during the read could be missed on the next sync.</li>
+<li><strong>Why it matters:</strong> A deleted message could stay on an offline client, which breaks the delete promise.</li>
+<li><strong>Recommended action:</strong> Take the server time before any reading starts.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="ar-05-a-client-message-id-reused-in-another-conversation-is-not-handled">AR-05: A client message ID reused in another conversation is not handled</h3>
+<ul>
+<li><strong>Description:</strong> Duplicate detection is by sender and client message ID. If the same ID were used for a different conversation, the service would return a message from the other conversation.</li>
+<li><strong>Why it matters:</strong> It would return the wrong message, and for a deliberate caller it blurs conversation boundaries.</li>
+<li><strong>Recommended action:</strong> Refuse that case with a conflict.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h2 id="low-severity">Low severity</h2>
+<h3 id="ar-06-a-reply-may-be-visible-when-its-original-is-not">AR-06: A reply may be visible when its original is not</h3>
+<ul>
+<li><strong>Description:</strong> A person who joined a group chat after an original message can see a later reply to it but not the original. The thread view would answer 404 for the root.</li>
+<li><strong>Why it matters:</strong> An edge case with a small effect. The interface can show "Replying to an earlier message".</li>
+<li><strong>Recommended action:</strong> Define the thread view for this case when the interface is refined.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h3 id="ar-07-who-may-download-an-attachment-before-it-is-sent-is-not-stated">AR-07: Who may download an attachment before it is sent is not stated</h3>
+<ul>
+<li><strong>Description:</strong> An uploaded file that is not yet attached to a message is not covered by the download rule, which requires a visible message.</li>
+<li><strong>Why it matters:</strong> Minor. The uploader needs a preview, and no one else needs access.</li>
+<li><strong>Recommended action:</strong> Allow only the uploader to open an unsent attachment.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h3 id="ar-08-growth-of-the-objectives-counts-audit-log-and-notifications-is-not-bounded">AR-08: Growth of the objectives counts, audit log, and notifications is not bounded</h3>
+<ul>
+<li><strong>Description:</strong> There is no pruning rule for the per-minute counts older than 28 days, the audit log, or old notifications.</li>
+<li><strong>Why it matters:</strong> At 10 users the growth is tiny. Over years it is not zero.</li>
+<li><strong>Recommended action:</strong> Add pruning rules when the retention answer arrives.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Severity</th>
+<th>Disposition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AR-01</td>
+<td>The connect flow counted client-side refusals as failures</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>AR-02</td>
+<td>The latency budget has no stated basis for its network figures</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>AR-03</td>
+<td>Conversations added or removed while offline are not replayed</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>AR-04</td>
+<td>The deletion catch-up could miss a deletion made during the resume</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>AR-05</td>
+<td>A client message ID reused in another conversation is not handled</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>AR-06</td>
+<td>A reply may be visible when its original is not</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+<tr>
+<td>AR-07</td>
+<td>Who may download an attachment before it is sent is not stated</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+<tr>
+<td>AR-08</td>
+<td>Growth of the objectives counts, audit log, and notifications is not bounded</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+</tbody>
+</table></main></div>
+<footer>Lab build, not production software. Generated from the markdown documents in the repository by tools/build_site.py.</footer>
+</body></html>

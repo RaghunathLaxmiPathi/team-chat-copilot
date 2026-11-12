@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assumptions critique - Team Chat with Copilot</title><style>
+:root{--text:#111827;--muted:#4b5563;--accent:#1d4ed8;--border:#d1d5db;--panel:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,"Segoe UI",sans-serif;color:var(--text)}
+a{color:var(--accent)}a:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#000;color:#fff;padding:6px 10px}
+header.site{background:#0f172a;color:#fff;padding:12px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.site a{color:#fff;text-decoration:none}header.site .brand{font-weight:700;font-size:1.1rem}
+header.site nav a{margin-right:14px;opacity:.9}header.site nav a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:20px}
+aside.side{font-size:.92rem;position:sticky;top:12px;align-self:start}
+aside.side h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+aside.side ul{list-style:none;margin:0 0 16px;padding:0}aside.side li a{display:block;padding:4px 8px;border-radius:6px;text-decoration:none}
+aside.side li a[aria-current=page]{background:var(--panel);font-weight:700}
+main{min-width:0}main h1{margin-top:0}
+main table{border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
+main th,main td{border:1px solid var(--border);padding:6px 10px;vertical-align:top;font-size:.93rem}
+main th{background:var(--panel);text-align:left}
+main blockquote{margin:12px 0;padding:8px 16px;border-left:4px solid var(--accent);background:#eff6ff}
+main code{background:var(--panel);padding:1px 5px;border-radius:4px;font-size:.9em}
+main pre{background:#0f172a;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto}
+main pre code{background:none;color:inherit;padding:0}
+pre.mermaid{background:#fff;color:var(--text);border:1px solid var(--border);text-align:center}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px}
+.hero h1{color:#fff;font-size:2rem;margin:0 0 8px}.hero p{max-width:60ch;color:#dbeafe}
+.hero a.btn{display:inline-block;background:#fff;color:#0f172a;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px}.card h3{margin:0 0 6px;font-size:1.02rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+footer{max-width:1280px;margin:0 auto;padding:20px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}aside.side{position:static}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site"><a class="brand" href="index.html">Team Chat with Copilot</a>
+<nav aria-label="Main"><a href="index.html">Overview</a><a href="chatapp.requirements.html">Requirements</a>
+<a href="chatapp.archspecs.html">Architecture</a><a href="https://github.com/RaghunathLaxmiPathi/team-chat-copilot">Source code</a></nav></header>
+<div class="layout"><aside class="side" aria-label="Documents"><h2>Project</h2><ul><li><a href="index.html">Overview</a></li></ul><h2>Design documents</h2><ul><li><a href="chatapp.assumptions.html">Assumptions</a></li><li><a href="chatapp.assumptions.gao.html" aria-current="page">Assumptions critique</a></li><li><a href="chatapp.requirements.html">Requirements</a></li><li><a href="chatapp.requirements.gao.html">Requirements critique</a></li><li><a href="chatapp.funcspecs.html">Functional specifications</a></li><li><a href="chatapp.funcspecs.gao.html">Functional specifications critique</a></li><li><a href="chatapp.archspecs.html">Architecture specifications</a></li><li><a href="chatapp.archspecs.gao.html">Architecture critique</a></li><li><a href="chatapp.testspecs.html">Test specifications</a></li><li><a href="chatapp.testspecs.gao.html">Test specifications critique</a></li><li><a href="chatapp.implementation.gao.html">Implementation critique</a></li></ul></aside><main id="content"><h1 id="team-chat-application-assumptions-critique-gao">Team Chat Application: Assumptions Critique (GAO)</h1>
+<p>Date: 2026-11-11</p>
+<blockquote>
+<p><strong>Status at a glance</strong>
+20 findings: 7 High, 10 Medium, 3 Low. All 17 High and Medium findings are Done and resolved in <a href="chatapp.assumptions.html">chatapp.assumptions.md</a>. The 3 Low findings are Defer and were left untouched. The summary table at the end shows where each finding was resolved.</p>
+</blockquote>
+<h2 id="purpose-and-basis">Purpose and basis</h2>
+<p>This is a critique of the assumptions gathered so far for the team chat application. It checks whether they are a sound foundation for writing requirements and engineering a Microsoft service that meets the Fundamentals: quality, capacity, availability, resiliency, security, privacy, accessibility, and supportability.</p>
+<p>The only source is the brainstorm conversation. No earlier assumptions document exists. Anything the owner did not answer is treated as unknown, not as a decision.</p>
+<h3 id="assumptions-as-stated-by-the-owner">Assumptions as stated by the owner</h3>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Stated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Users</td>
+<td>Direct team only, about 10 people, sign in with Entra ID</td>
+</tr>
+<tr>
+<td>Growth</td>
+<td>Not defined. Five questions go to the requester: team-only vs adoption by other teams, compliance and retention rules, launch date and budget, ownership and on-call, external guests</td>
+</tr>
+<tr>
+<td>Conversations</td>
+<td>Direct messages, group chats (invite-based), channels</td>
+</tr>
+<tr>
+<td>Message features</td>
+<td>Plain text, markdown, threads, @mentions, attachments, search, notifications (in-app, email, push)</td>
+</tr>
+<tr>
+<td>Membership</td>
+<td>Controlled by the owner</td>
+</tr>
+<tr>
+<td>Out of scope</td>
+<td>Voice</td>
+</tr>
+<tr>
+<td>Real-time</td>
+<td>Instant push (about 1 second or less); users receive everything they missed, in order; delivery status and automatic retry</td>
+</tr>
+<tr>
+<td>Accessibility</td>
+<td>Needs unknown; deferred twice</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>Keep history forever; users can delete their own messages; departing members keep their messages and lose access immediately; chats likely contain sensitive information</td>
+</tr>
+<tr>
+<td>Attachments</td>
+<td>Retention not decided; owner asked to be asked at the end</td>
+</tr>
+<tr>
+<td>Hosting, scale, security details, operations</td>
+<td>Not yet stated</td>
+</tr>
+</tbody>
+</table>
+<h3 id="checks-performed">Checks performed</h3>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Missing assumptions needed before requirements</td>
+<td>Findings: G-05, G-06, G-07, G-13, G-16, G-17</td>
+</tr>
+<tr>
+<td>2. Assumptions too vague to act on</td>
+<td>Findings: G-08, G-12</td>
+</tr>
+<tr>
+<td>3. Confidence levels that seem unjustified</td>
+<td>Finding: G-14</td>
+</tr>
+<tr>
+<td>4. Contradictions</td>
+<td>Findings: G-01, G-09, G-18</td>
+</tr>
+<tr>
+<td>5. Missing boundary conditions and edge cases</td>
+<td>Findings: G-10, G-15</td>
+</tr>
+<tr>
+<td>6. Fundamentals with no assumption</td>
+<td>Findings: G-04 (accessibility), G-06 (availability, resiliency), G-07 (supportability), G-02 and G-03 (privacy, security), G-12 (quality)</td>
+</tr>
+</tbody>
+</table>
+<p>Fundamentals coverage: capacity has one thin assumption (10 users). Security has one (Entra ID). Every other Fundamental has no assumption or a deferred one.</p>
+<hr />
+<h2 id="high-severity">High severity</h2>
+<h3 id="g-01-keep-forever-contradicts-users-deleting-their-own-messages">G-01: Keep forever contradicts users deleting their own messages</h3>
+<ul>
+<li><strong>Description:</strong> The owner chose to keep history forever and also chose to let users delete their own messages. Both cannot be true as written. Either deleted messages are really removed, or history is kept forever.</li>
+<li><strong>Why it matters:</strong> Privacy and legal exposure. If a deleted message still exists in storage, backups, or search, users are told something false. Engineers will also guess which rule wins, and different parts of the system will guess differently.</li>
+<li><strong>Recommended action:</strong> Decide which rule wins and state it. Define what "delete" means: hidden from users, removed from storage, or removed from backups, and within what time. Define whether a retention limit overrides user deletion.</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-02-privacy-and-compliance-rules-are-unknown-while-sensitive-content-is-expected">G-02: Privacy and compliance rules are unknown while sensitive content is expected</h3>
+<ul>
+<li><strong>Description:</strong> The owner expects sensitive content (customer data, personnel matters, credentials, confidential information) but has not said which compliance, retention, or data-handling rules apply. Those are open questions for the requester. "Keep forever" was chosen before that answer exists.</li>
+<li><strong>Why it matters:</strong> A Microsoft service must meet privacy and data-handling obligations. Indefinite retention of sensitive data is likely to conflict with them, and it increases the impact of any breach. Retention, residency, deletion, and access requirements cannot be written until these rules are known.</li>
+<li><strong>Recommended action:</strong> Treat "keep forever" as a placeholder, not a decision. Get the compliance and retention answers from the requester and the privacy contact before writing retention requirements. Record who owns data subject requests (access, deletion).</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-03-protection-of-sensitive-data-is-not-defined">G-03: Protection of sensitive data is not defined</h3>
+<ul>
+<li><strong>Description:</strong> No assumption covers how sensitive data is protected: encryption in transit and at rest, who can read messages (including the owner, operators, and administrators), audit logging of access, key management, or session and sign-in policy (MFA, session lifetime). Entra ID is the only security assumption.</li>
+<li><strong>Why it matters:</strong> Security is a Fundamental, and the owner says chats will likely hold sensitive data. Without these assumptions, engineers will either under-build or invent controls with no agreed basis. Who can read direct messages is also a privacy question that employees will ask.</li>
+<li><strong>Recommended action:</strong> State assumptions for encryption, access to message content by operators and admins, audit logging, authorization (who can read which conversation, enforced on the server), and sign-in policy. Classify the data (for example by Microsoft data classification) so controls can follow.</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-04-accessibility-is-deferred-and-treated-as-optional">G-04: Accessibility is deferred and treated as optional</h3>
+<ul>
+<li><strong>Description:</strong> The owner deferred accessibility needs twice and said to ask when the time comes. Accessibility needs of the 10 team members are unknown.</li>
+<li><strong>Why it matters:</strong> Accessibility is a Fundamental, and it does not depend on whether a current team member has a known need. Instant push, threads, @mentions, and live-updating lists are the hardest features to make work for screen reader and keyboard users. Deciding late means reworking UI and interaction design already built. A service that excludes users cannot ship as a Microsoft service.</li>
+<li><strong>Recommended action:</strong> Assume accessibility is a v1 requirement regardless of known needs. Record the target standard (for example WCAG 2.1 AA and Microsoft accessibility requirements). Add an assumption for how new messages are announced to assistive technology and for full keyboard operation. Name an owner and a date for the team's actual needs.</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-05-where-the-application-runs-is-not-stated">G-05: Where the application runs is not stated</h3>
+<ul>
+<li><strong>Description:</strong> No assumption covers hosting: cloud or on-premises, which platform, which regions, and which environments (development, test, production).</li>
+<li><strong>Why it matters:</strong> Hosting determines the availability and resiliency options, the security and compliance controls, data residency, cost, and what the operations team must run. Nearly every other Fundamental depends on it. Real-time connections and storage design also differ by platform.</li>
+<li><strong>Recommended action:</strong> State the hosting platform, regions, and environments. If undecided, record it as an open decision with an owner. As a Microsoft service, confirm the required approved platform and compliance baseline.</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-06-no-availability-or-resiliency-targets-despite-a-strong-delivery-promise">G-06: No availability or resiliency targets, despite a strong delivery promise</h3>
+<ul>
+<li><strong>Description:</strong> The owner requires that users receive everything they missed, in order, with instant push. That is a durability and recovery promise, but no availability target, recovery time, data-loss tolerance, or disaster recovery assumption exists.</li>
+<li><strong>Why it matters:</strong> "Nothing is lost, in order" must hold through restarts, deployments, outages, and regional failure. Without targets, engineers cannot choose storage, replication, or failover, and cannot test the promise. Availability and resiliency are Fundamentals with no assumption.</li>
+<li><strong>Recommended action:</strong> State an availability target (for example monthly uptime), a recovery time objective, and a recovery point objective (the amount of data loss allowed, which should be zero for acknowledged messages if the promise stands). State whether downtime during deployments is allowed and what the client does while disconnected.</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-07-operation-monitoring-and-ownership-are-undefined">G-07: Operation, monitoring, and ownership are undefined</h3>
+<ul>
+<li><strong>Description:</strong> No assumption covers who runs the service, who is on call, how it is monitored, how incidents are handled, or how it is deployed and updated. Ownership after launch is an open question for the requester.</li>
+<li><strong>Why it matters:</strong> Supportability is a Fundamental. A service holding sensitive data with no named owner has nobody to respond to an outage or a security incident. Monitoring requirements (what to measure, what alerts) also shape the design, for example message delivery latency and failed deliveries.</li>
+<li><strong>Recommended action:</strong> Assume a named owner and on-call arrangement before launch. State the minimum monitoring: health, delivery latency, error rate, connection counts, and storage growth. State how support requests and incidents are received and handled, and how logs avoid storing message content.</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<hr />
+<h2 id="medium-severity">Medium severity</h2>
+<h3 id="g-08-capacity-and-performance-assumptions-are-vague-or-missing">G-08: Capacity and performance assumptions are vague or missing</h3>
+<ul>
+<li><strong>Description:</strong> The only capacity number is 10 users, and the growth answer was "get as much information as you can". "About 1 second or less" for delivery has no percentile, no measurement point, and no load condition. There are no assumptions for message volume, message size, attachment size, concurrent connections, or storage growth. With "keep forever", storage and search grow without bound.</li>
+<li><strong>Why it matters:</strong> Capacity is a Fundamental. A requirement that cannot be measured cannot be tested. Indefinite retention plus search and "everything missed" replay means cost and performance get worse every month.</li>
+<li><strong>Recommended action:</strong> State expected messages per user per day, attachment size and volume, and peak concurrent users. Define the latency target, for example 95th percentile of send-to-receive under normal load. State a growth assumption (even "stays at 10") with an owner who can confirm it.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-09-single-owner-controls-membership-but-access-must-be-removed-immediately">G-09: Single owner controls membership, but access must be removed immediately</h3>
+<ul>
+<li><strong>Description:</strong> The owner alone controls membership. The owner also wants departing members to lose access immediately. One person is a single point of failure for both onboarding and offboarding. The rules for creating and joining channels and groups beyond "me" are not stated.</li>
+<li><strong>Why it matters:</strong> If the owner is unavailable, a departing member keeps access. That is a security gap, and a supportability gap. It also depends on one person's memory.</li>
+<li><strong>Recommended action:</strong> Assume at least two administrators. Tie access to the Entra ID account state, so disabling the account removes access without a manual step in the app. State who may create channels and groups and who may add members.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-10-derived-copies-of-messages-are-not-covered-by-retention-or-deletion">G-10: Derived copies of messages are not covered by retention or deletion</h3>
+<ul>
+<li><strong>Description:</strong> Search, email and push notifications, backups, replies, and attachments all hold copies of or references to messages. Nothing says what happens to them when a message is deleted, a member leaves, or retention applies. Deleting a message that has replies in a thread is also undefined.</li>
+<li><strong>Why it matters:</strong> Sensitive content can survive in the search index, in email, or on a phone after the original is deleted. Search must also respect who may see each conversation.</li>
+<li><strong>Recommended action:</strong> Assume deletion and retention apply to every copy, including the search index and backups, with a stated time. Assume notifications avoid message content (for example "new message from X"). Define the behavior for deleting a message that has replies.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-11-untrusted-content-handling-is-not-assumed-markdown-links-attachments">G-11: Untrusted content handling is not assumed (markdown, links, attachments)</h3>
+<ul>
+<li><strong>Description:</strong> Markdown and file attachments were selected, but there are no assumptions for sanitizing rendered content, limiting file size and type, scanning files for malware, or protecting access to attachments. Attachment retention is unresolved (parked by the owner).</li>
+<li><strong>Why it matters:</strong> Unsanitized markdown can lead to script injection. Attachments are the main route for malware, and they are the largest and riskiest data stored. A flaw here exposes every user.</li>
+<li><strong>Recommended action:</strong> Assume rendered content is sanitized, files are size- and type-limited and scanned, and attachment access follows conversation permissions. Resolve attachment retention at the end of the brainstorm, as the owner requested.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-12-quality-and-delivery-semantics-are-not-defined">G-12: Quality and delivery semantics are not defined</h3>
+<ul>
+<li><strong>Description:</strong> The owner asked for ordered delivery, no lost messages, and automatic retry, but did not state the delivery guarantee. Retry without a rule can produce duplicate messages. Ordering across several devices or after reconnect is not defined. No assumption covers quality in general, such as test expectations or what counts as acceptable defect levels at launch.</li>
+<li><strong>Why it matters:</strong> Duplicates and out-of-order messages are the most common visible defects in chat. Quality is a Fundamental with no assumption. The behavior must be agreed before it can be built and tested.</li>
+<li><strong>Recommended action:</strong> Assume the server assigns message order and each message has a client-generated unique ID so retries do not create duplicates. State the guarantee in plain words (for example: a message is shown as sent only after it is stored). State basic quality gates for launch.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-13-no-stated-purpose-or-success-measure">G-13: No stated purpose or success measure</h3>
+<ul>
+<li><strong>Description:</strong> The request is a single sentence. The owner did not select the question of why Microsoft Teams (or another existing tool) is not sufficient. There is no assumption about what success looks like or what this app must do that existing tools do not.</li>
+<li><strong>Why it matters:</strong> The scope chosen (direct messages, groups, channels, threads, search, attachments, notifications) is close to an existing product. Without a purpose, scope cannot be prioritized and there is no way to judge whether the project worked, or whether it should be built.</li>
+<li><strong>Recommended action:</strong> Record the reason this app is needed and one or two measurable success criteria. Put the "why not Teams" question to the requester.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-14-confidence-and-source-are-not-recorded-and-some-answers-look-unjustified">G-14: Confidence and source are not recorded, and some answers look unjustified</h3>
+<ul>
+<li><strong>Description:</strong> No assumption has a confidence level or a source. Several answers appear stated without basis: "about 10 users" with no growth information, "keep forever" while compliance rules are unknown, and accessibility "ask me at that time" while needs are unknown.</li>
+<li><strong>Why it matters:</strong> Requirements will treat every answer as settled. Guesses will be built in as facts, and nobody will know which ones to recheck.</li>
+<li><strong>Recommended action:</strong> Record, for each assumption, a confidence level (high, medium, low), who said it, and how it will be verified. Mark "keep forever", user count, and growth as low confidence until verified.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-15-boundary-conditions-and-edge-cases-are-not-assumed">G-15: Boundary conditions and edge cases are not assumed</h3>
+<ul>
+<li><strong>Description:</strong> Nothing is stated for limits and edge cases: maximum message length, rate limits, maximum members per group or channel, very long history, and a user who returns after a long absence ("everything missed" could be very large with forever retention). Also undefined: how a departed member's messages are shown, what happens when an Entra account is deleted, whether a person added to a group or channel sees earlier messages, and how time zones are displayed.</li>
+<li><strong>Why it matters:</strong> These cases decide the data model and the user experience, and they are expensive to change after data exists. The "everything missed, in order" promise has no stated upper bound.</li>
+<li><strong>Recommended action:</strong> Assume explicit limits and behaviors for each case listed. Decide whether new members see history. Bound the catch-up on reconnect (for example, load in pages).</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-16-client-platforms-are-not-stated">G-16: Client platforms are not stated</h3>
+<ul>
+<li><strong>Description:</strong> No assumption says whether users use a web app, desktop app, mobile app, or several. Push notifications were selected, which implies at least some device-level delivery.</li>
+<li><strong>Why it matters:</strong> The platform decides the real-time approach, the notification mechanism, accessibility testing scope, and the security of data stored on devices (sensitive messages cached on personal phones).</li>
+<li><strong>Recommended action:</strong> State supported platforms and browsers for v1, and whether messages may be stored on user devices.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="g-17-identity-boundary-may-not-match-the-likely-user-population">G-17: Identity boundary may not match the likely user population</h3>
+<ul>
+<li><strong>Description:</strong> Sign-in is Entra ID and the users are the direct team. Whether external guests or contractors join, and whether other teams adopt the app, are open questions. Entra ID sign-in for the organization does not by itself cover guests, and a team-only design may not extend to other teams without rework.</li>
+<li><strong>Why it matters:</strong> Tenancy and the authorization model are hard to change later. Guests change the privacy and security posture.</li>
+<li><strong>Recommended action:</strong> Assume internal users of one organization for v1 and record the guest and multi-team questions as blocking open items. Design authorization so that adding a second team does not require a rewrite.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<hr />
+<h2 id="low-severity">Low severity</h2>
+<h3 id="g-18-plain-text-only-and-markdown-were-both-selected">G-18: "Plain text only" and "markdown" were both selected</h3>
+<ul>
+<li><strong>Description:</strong> The message features include both plain text only and formatting or markdown. These conflict.</li>
+<li><strong>Why it matters:</strong> It is a small ambiguity, but requirements need one answer. It is easy to resolve.</li>
+<li><strong>Recommended action:</strong> Assume markdown is the single supported format (plain text is a subset) and confirm.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h3 id="g-19-typing-indicators-and-presence-are-undecided">G-19: Typing indicators and presence are undecided</h3>
+<ul>
+<li><strong>Description:</strong> The owner did not answer whether typing indicators or online presence are wanted.</li>
+<li><strong>Why it matters:</strong> They add constant traffic and accessibility work, and add little for 10 people. Leaving them out of v1 has little cost.</li>
+<li><strong>Recommended action:</strong> Assume neither is in v1 unless the owner asks for them.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h3 id="g-20-video-bots-and-integrations-are-neither-in-nor-out-of-scope">G-20: Video, bots, and integrations are neither in nor out of scope</h3>
+<ul>
+<li><strong>Description:</strong> Only voice was excluded. Video, screen sharing, bots, and integrations are not mentioned.</li>
+<li><strong>Why it matters:</strong> Unstated scope tends to be added later by assumption. The effect on v1 is small.</li>
+<li><strong>Recommended action:</strong> Assume they are out of scope for v1 and confirm.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<hr />
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Severity</th>
+<th>Disposition</th>
+<th>Resolved in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G-01</td>
+<td>Keep forever contradicts users deleting their own messages</td>
+<td>High</td>
+<td>Done</td>
+<td>A-15, A-16, A-17</td>
+</tr>
+<tr>
+<td>G-02</td>
+<td>Privacy and compliance rules unknown while sensitive content is expected</td>
+<td>High</td>
+<td>Done</td>
+<td>A-16, A-18</td>
+</tr>
+<tr>
+<td>G-03</td>
+<td>Protection of sensitive data not defined</td>
+<td>High</td>
+<td>Done</td>
+<td>A-22</td>
+</tr>
+<tr>
+<td>G-04</td>
+<td>Accessibility deferred and treated as optional</td>
+<td>High</td>
+<td>Done</td>
+<td>A-24</td>
+</tr>
+<tr>
+<td>G-05</td>
+<td>Where the application runs is not stated</td>
+<td>High</td>
+<td>Done</td>
+<td>A-25</td>
+</tr>
+<tr>
+<td>G-06</td>
+<td>No availability or resiliency targets despite a strong delivery promise</td>
+<td>High</td>
+<td>Done</td>
+<td>A-26, A-27</td>
+</tr>
+<tr>
+<td>G-07</td>
+<td>Operation, monitoring, and ownership undefined</td>
+<td>High</td>
+<td>Done</td>
+<td>A-32, A-33</td>
+</tr>
+<tr>
+<td>G-08</td>
+<td>Capacity and performance assumptions vague or missing</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-28, A-29</td>
+</tr>
+<tr>
+<td>G-09</td>
+<td>Single owner controls membership, but access must be removed immediately</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-30</td>
+</tr>
+<tr>
+<td>G-10</td>
+<td>Derived copies of messages not covered by retention or deletion</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-17, A-20</td>
+</tr>
+<tr>
+<td>G-11</td>
+<td>Untrusted content handling not assumed (markdown, links, attachments)</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-23 (attachment retention still an open question)</td>
+</tr>
+<tr>
+<td>G-12</td>
+<td>Quality and delivery semantics not defined</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-13, A-14</td>
+</tr>
+<tr>
+<td>G-13</td>
+<td>No stated purpose or success measure</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-05</td>
+</tr>
+<tr>
+<td>G-14</td>
+<td>Confidence and source not recorded; some answers look unjustified</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-02, A-16, A-28, A-34</td>
+</tr>
+<tr>
+<td>G-15</td>
+<td>Boundary conditions and edge cases not assumed</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-19, A-31</td>
+</tr>
+<tr>
+<td>G-16</td>
+<td>Client platforms not stated</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-09</td>
+</tr>
+<tr>
+<td>G-17</td>
+<td>Identity boundary may not match the likely user population</td>
+<td>Medium</td>
+<td>Done</td>
+<td>A-04</td>
+</tr>
+<tr>
+<td>G-18</td>
+<td>"Plain text only" and "markdown" both selected</td>
+<td>Low</td>
+<td>Defer</td>
+<td>Not addressed</td>
+</tr>
+<tr>
+<td>G-19</td>
+<td>Typing indicators and presence undecided</td>
+<td>Low</td>
+<td>Defer</td>
+<td>Not addressed</td>
+</tr>
+<tr>
+<td>G-20</td>
+<td>Video, bots, and integrations neither in nor out of scope</td>
+<td>Low</td>
+<td>Defer</td>
+<td>Not addressed</td>
+</tr>
+</tbody>
+</table></main></div>
+<footer>Lab build, not production software. Generated from the markdown documents in the repository by tools/build_site.py.</footer>
+</body></html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Test specifications critique - Team Chat with Copilot</title><style>
+:root{--text:#111827;--muted:#4b5563;--accent:#1d4ed8;--border:#d1d5db;--panel:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,"Segoe UI",sans-serif;color:var(--text)}
+a{color:var(--accent)}a:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#000;color:#fff;padding:6px 10px}
+header.site{background:#0f172a;color:#fff;padding:12px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.site a{color:#fff;text-decoration:none}header.site .brand{font-weight:700;font-size:1.1rem}
+header.site nav a{margin-right:14px;opacity:.9}header.site nav a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:20px}
+aside.side{font-size:.92rem;position:sticky;top:12px;align-self:start}
+aside.side h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+aside.side ul{list-style:none;margin:0 0 16px;padding:0}aside.side li a{display:block;padding:4px 8px;border-radius:6px;text-decoration:none}
+aside.side li a[aria-current=page]{background:var(--panel);font-weight:700}
+main{min-width:0}main h1{margin-top:0}
+main table{border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
+main th,main td{border:1px solid var(--border);padding:6px 10px;vertical-align:top;font-size:.93rem}
+main th{background:var(--panel);text-align:left}
+main blockquote{margin:12px 0;padding:8px 16px;border-left:4px solid var(--accent);background:#eff6ff}
+main code{background:var(--panel);padding:1px 5px;border-radius:4px;font-size:.9em}
+main pre{background:#0f172a;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto}
+main pre code{background:none;color:inherit;padding:0}
+pre.mermaid{background:#fff;color:var(--text);border:1px solid var(--border);text-align:center}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px}
+.hero h1{color:#fff;font-size:2rem;margin:0 0 8px}.hero p{max-width:60ch;color:#dbeafe}
+.hero a.btn{display:inline-block;background:#fff;color:#0f172a;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px}.card h3{margin:0 0 6px;font-size:1.02rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+footer{max-width:1280px;margin:0 auto;padding:20px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}aside.side{position:static}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site"><a class="brand" href="index.html">Team Chat with Copilot</a>
+<nav aria-label="Main"><a href="index.html">Overview</a><a href="chatapp.requirements.html">Requirements</a>
+<a href="chatapp.archspecs.html">Architecture</a><a href="https://github.com/RaghunathLaxmiPathi/team-chat-copilot">Source code</a></nav></header>
+<div class="layout"><aside class="side" aria-label="Documents"><h2>Project</h2><ul><li><a href="index.html">Overview</a></li></ul><h2>Design documents</h2><ul><li><a href="chatapp.assumptions.html">Assumptions</a></li><li><a href="chatapp.assumptions.gao.html">Assumptions critique</a></li><li><a href="chatapp.requirements.html">Requirements</a></li><li><a href="chatapp.requirements.gao.html">Requirements critique</a></li><li><a href="chatapp.funcspecs.html">Functional specifications</a></li><li><a href="chatapp.funcspecs.gao.html">Functional specifications critique</a></li><li><a href="chatapp.archspecs.html">Architecture specifications</a></li><li><a href="chatapp.archspecs.gao.html">Architecture critique</a></li><li><a href="chatapp.testspecs.html">Test specifications</a></li><li><a href="chatapp.testspecs.gao.html" aria-current="page">Test specifications critique</a></li><li><a href="chatapp.implementation.gao.html">Implementation critique</a></li></ul></aside><main id="content"><h1 id="test-specifications-critique-gao">Test Specifications Critique (GAO)</h1>
+<p>Date: 2026-11-11
+Artifact reviewed: <a href="chatapp.testspecs.html">chatapp.testspecs.md</a></p>
+<blockquote>
+<p><strong>Status at a glance</strong>
+6 findings: 0 High, 4 Medium, 2 Low. Disposition follows the fixed rule: Medium is Address and Low is Defer. The 4 Medium findings have been applied to the test specifications and are marked Done.</p>
+</blockquote>
+<h2 id="checks-that-came-up-clean">Checks that came up clean</h2>
+<ul>
+<li><strong>Requirement coverage:</strong> every functional requirement, SLO, security, privacy, and supportability requirement that can be tested locally has at least one test. The ones that cannot are listed with a reason and a production test method (section 6).</li>
+<li><strong>Negative paths:</strong> each protective rule (membership, deletion, deactivation, limits) has a refusal test.</li>
+<li><strong>Independence:</strong> tests use a fresh service and database each, so order does not matter.</li>
+</ul>
+<h2 id="medium-severity">Medium severity</h2>
+<h3 id="ts-01-capacity-headroom-nfr-04-had-no-test">TS-01: Capacity headroom (NFR-04) had no test</h3>
+<ul>
+<li><strong>Description:</strong> NFR-04 asks for ten times headroom. No test pushed the service beyond the expected load.</li>
+<li><strong>Why it matters:</strong> The headroom claim in the architecture was unverified.</li>
+<li><strong>Recommended action:</strong> Add a test with 100 connections on one channel and 200 messages, checking order, closure, and latency.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="ts-02-atomicity-of-a-send-was-not-tested">TS-02: Atomicity of a send was not tested</h3>
+<ul>
+<li><strong>Description:</strong> The design relies on one transaction for number, message, mentions, and attachment links. No test made a step fail and checked that nothing was left behind.</li>
+<li><strong>Why it matters:</strong> A partial write could leave a gap in the numbers or an orphan mention, which breaks ordering and catch-up.</li>
+<li><strong>Recommended action:</strong> Add a test that fails a step inside the transaction and checks for no partial data and no consumed number.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="ts-03-utc-time-storage-fr-30-had-no-test">TS-03: UTC time storage (FR-30) had no test</h3>
+<ul>
+<li><strong>Description:</strong> FR-30 requires times to be stored in UTC. No test checked it.</li>
+<li><strong>Why it matters:</strong> Time zone mistakes are easy to introduce and hard to find.</li>
+<li><strong>Recommended action:</strong> Add a test that checks the format and zone of all stored and returned times.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h3 id="ts-04-the-log-test-would-miss-tokens-in-real-time-addresses">TS-04: The log test would miss tokens in real-time addresses</h3>
+<ul>
+<li><strong>Description:</strong> The real-time connection carries the token in its address (risk R-12). A standard server access log would print that address. The log test only looked for message text.</li>
+<li><strong>Why it matters:</strong> A token in a log is a credential leak.</li>
+<li><strong>Recommended action:</strong> Extend the log test to check for tokens, including access lines for the real-time address.</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Disposition:</strong> Done</li>
+</ul>
+<h2 id="low-severity">Low severity</h2>
+<h3 id="ts-05-the-10-second-request-limit-is-only-tested-in-the-tracker">TS-05: The 10-second request limit is only tested in the tracker</h3>
+<ul>
+<li><strong>Description:</strong> T-61 tests that a slow request counts as a failure in the tracker. It does not test the middleware that measures the time.</li>
+<li><strong>Why it matters:</strong> A bug in the middleware's timing would pass this test. The effect is small, because the middleware logic is a few lines.</li>
+<li><strong>Recommended action:</strong> Add a deliberately slow test route when the middleware changes.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h3 id="ts-06-the-concurrency-test-may-not-create-true-parallelism">TS-06: The concurrency test may not create true parallelism</h3>
+<ul>
+<li><strong>Description:</strong> T-12 uses the test client, which may serialize requests. It could pass without exercising overlapping writes.</li>
+<li><strong>Why it matters:</strong> The service runs one writer on one event loop, so overlapping writes cannot happen in this design. The test mainly guards future changes.</li>
+<li><strong>Recommended action:</strong> Add a multi-process test if the design ever allows more than one writer.</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Disposition:</strong> Defer</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Severity</th>
+<th>Disposition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TS-01</td>
+<td>Capacity headroom (NFR-04) had no test</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>TS-02</td>
+<td>Atomicity of a send was not tested</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>TS-03</td>
+<td>UTC time storage (FR-30) had no test</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>TS-04</td>
+<td>The log test would miss tokens in real-time addresses</td>
+<td>Medium</td>
+<td>Done</td>
+</tr>
+<tr>
+<td>TS-05</td>
+<td>The 10-second request limit is only tested in the tracker</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+<tr>
+<td>TS-06</td>
+<td>The concurrency test may not create true parallelism</td>
+<td>Low</td>
+<td>Defer</td>
+</tr>
+</tbody>
+</table></main></div>
+<footer>Lab build, not production software. Generated from the markdown documents in the repository by tools/build_site.py.</footer>
+</body></html>

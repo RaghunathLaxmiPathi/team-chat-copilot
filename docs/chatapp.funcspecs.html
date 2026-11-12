@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Functional specifications - Team Chat with Copilot</title><style>
+:root{--text:#111827;--muted:#4b5563;--accent:#1d4ed8;--border:#d1d5db;--panel:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,"Segoe UI",sans-serif;color:var(--text)}
+a{color:var(--accent)}a:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#000;color:#fff;padding:6px 10px}
+header.site{background:#0f172a;color:#fff;padding:12px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+header.site a{color:#fff;text-decoration:none}header.site .brand{font-weight:700;font-size:1.1rem}
+header.site nav a{margin-right:14px;opacity:.9}header.site nav a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1280px;margin:0 auto;padding:20px}
+aside.side{font-size:.92rem;position:sticky;top:12px;align-self:start}
+aside.side h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+aside.side ul{list-style:none;margin:0 0 16px;padding:0}aside.side li a{display:block;padding:4px 8px;border-radius:6px;text-decoration:none}
+aside.side li a[aria-current=page]{background:var(--panel);font-weight:700}
+main{min-width:0}main h1{margin-top:0}
+main table{border-collapse:collapse;display:block;overflow-x:auto;margin:12px 0}
+main th,main td{border:1px solid var(--border);padding:6px 10px;vertical-align:top;font-size:.93rem}
+main th{background:var(--panel);text-align:left}
+main blockquote{margin:12px 0;padding:8px 16px;border-left:4px solid var(--accent);background:#eff6ff}
+main code{background:var(--panel);padding:1px 5px;border-radius:4px;font-size:.9em}
+main pre{background:#0f172a;color:#e5e7eb;padding:12px;border-radius:8px;overflow:auto}
+main pre code{background:none;color:inherit;padding:0}
+pre.mermaid{background:#fff;color:var(--text);border:1px solid var(--border);text-align:center}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:14px;padding:32px;margin-bottom:24px}
+.hero h1{color:#fff;font-size:2rem;margin:0 0 8px}.hero p{max-width:60ch;color:#dbeafe}
+.hero a.btn{display:inline-block;background:#fff;color:#0f172a;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 0 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px 16px}.card h3{margin:0 0 6px;font-size:1.02rem}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+footer{max-width:1280px;margin:0 auto;padding:20px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--border)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}aside.side{position:static}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site"><a class="brand" href="index.html">Team Chat with Copilot</a>
+<nav aria-label="Main"><a href="index.html">Overview</a><a href="chatapp.requirements.html">Requirements</a>
+<a href="chatapp.archspecs.html">Architecture</a><a href="https://github.com/RaghunathLaxmiPathi/team-chat-copilot">Source code</a></nav></header>
+<div class="layout"><aside class="side" aria-label="Documents"><h2>Project</h2><ul><li><a href="index.html">Overview</a></li></ul><h2>Design documents</h2><ul><li><a href="chatapp.assumptions.html">Assumptions</a></li><li><a href="chatapp.assumptions.gao.html">Assumptions critique</a></li><li><a href="chatapp.requirements.html">Requirements</a></li><li><a href="chatapp.requirements.gao.html">Requirements critique</a></li><li><a href="chatapp.funcspecs.html" aria-current="page">Functional specifications</a></li><li><a href="chatapp.funcspecs.gao.html">Functional specifications critique</a></li><li><a href="chatapp.archspecs.html">Architecture specifications</a></li><li><a href="chatapp.archspecs.gao.html">Architecture critique</a></li><li><a href="chatapp.testspecs.html">Test specifications</a></li><li><a href="chatapp.testspecs.gao.html">Test specifications critique</a></li><li><a href="chatapp.implementation.gao.html">Implementation critique</a></li></ul></aside><main id="content"><h1 id="team-chat-application-functional-specifications">Team Chat Application: Functional Specifications</h1>
+<p>Date: 2026-11-11
+Sources: <a href="chatapp.requirements.html">chatapp.requirements.md</a>, <a href="chatapp.assumptions.html">chatapp.assumptions.md</a></p>
+<blockquote>
+<p><strong>Status at a glance</strong>
+22 use cases, one web interface, one real-time channel. Every use case lists the requirements it satisfies. Behavior here is what a user or a tester can observe. How it is built is in <a href="chatapp.archspecs.html">chatapp.archspecs.md</a>.</p>
+</blockquote>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-roles">Roles</a></li>
+<li><a href="#2-the-interface">The interface</a></li>
+<li><a href="#3-use-cases">Use cases</a></li>
+<li><a href="#4-message-states">Message states</a></li>
+<li><a href="#5-rules-limits-and-validation">Rules, limits, and validation</a></li>
+<li><a href="#6-message-formatting">Message formatting</a></li>
+<li><a href="#7-notifications">Notifications</a></li>
+<li><a href="#8-errors-the-user-can-see">Errors the user can see</a></li>
+<li><a href="#9-accessibility-behavior">Accessibility behavior</a></li>
+<li><a href="#10-not-specified">Not specified</a></li>
+</ol>
+<hr />
+<h2 id="1-roles">1. Roles</h2>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Who</th>
+<th>Can do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Member</td>
+<td>Any active team member</td>
+<td>Chat in conversations they belong to, create direct and group chats, add members to groups they belong to, delete their own messages, search, attach files</td>
+</tr>
+<tr>
+<td>Administrator</td>
+<td>At least two people (FR-03)</td>
+<td>Everything a member can do, plus: create channels, add and remove channel members, add users, deactivate users</td>
+</tr>
+</tbody>
+</table>
+<p>An administrator has no extra power to read other people's conversations (SEC-04). An administrator who is not a member of a channel cannot read it.</p>
+<h2 id="2-the-interface">2. The interface</h2>
+<p>One web page with these areas.</p>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>What it shows</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sign-in</td>
+<td>A field for the user name and a Sign in button. Lab only: stands in for Entra ID.</td>
+<td>FR-01</td>
+</tr>
+<tr>
+<td>Conversation list</td>
+<td>Direct messages, group chats, and channels the user belongs to, each with an unread count. A "New" menu starts a direct message or group chat. Administrators also see "New channel".</td>
+<td>FR-10 to FR-12, FR-47</td>
+</tr>
+<tr>
+<td>Conversation header</td>
+<td>Name, member count, a Members button, and a Leave button for groups and channels.</td>
+<td>FR-13</td>
+</tr>
+<tr>
+<td>Message list</td>
+<td>Messages in order, with sender, time (in the user's time zone), and status for the user's own messages. A "Load earlier messages" button loads the previous 50.</td>
+<td>FR-30, FR-44, FR-45</td>
+</tr>
+<tr>
+<td>Composer</td>
+<td>A text box, an Attach button, and a Send button. Enter sends. Shift+Enter adds a new line.</td>
+<td>FR-20, FR-24</td>
+</tr>
+<tr>
+<td>Thread panel</td>
+<td>The original message and its replies, with a reply composer.</td>
+<td>FR-22</td>
+</tr>
+<tr>
+<td>Search</td>
+<td>A search box above the conversation list, with a result list.</td>
+<td>FR-25</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td>A bell button with a count, opening a list of mentions and invitations.</td>
+<td>FR-26</td>
+</tr>
+<tr>
+<td>Administration</td>
+<td>Visible to administrators only: add user, deactivate user.</td>
+<td>FR-03, FR-04</td>
+</tr>
+<tr>
+<td>Connection banner</td>
+<td>Shows "Reconnecting" when the real-time connection drops.</td>
+<td>FR-40, FR-45</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-use-cases">3. Use cases</h2>
+<h3 id="uc-01-sign-in-lab">UC-01: Sign in (lab)</h3>
+<ul>
+<li><strong>Trace:</strong> FR-01, FR-02, SEC-09</li>
+<li><strong>Steps:</strong> The user enters a user name and chooses Sign in. The service checks that the user exists and is active, then issues a session that lasts 8 hours. The page opens the real-time connection.</li>
+<li><strong>Result:</strong> The conversation list appears.</li>
+<li><strong>Failures:</strong> Unknown or deactivated user: "Sign-in failed" (the message does not say which). Production replaces this with Entra ID sign-in and the organization's policy.</li>
+</ul>
+<h3 id="uc-02-start-a-direct-message">UC-02: Start a direct message</h3>
+<ul>
+<li><strong>Trace:</strong> FR-10, FR-16</li>
+<li><strong>Steps:</strong> The user picks "New", then "Direct message", then a person. If a direct conversation with that person exists, it opens. Otherwise a new one is created with the two people.</li>
+<li><strong>Failures:</strong> The person is not an active user.</li>
+</ul>
+<h3 id="uc-03-create-a-group-chat">UC-03: Create a group chat</h3>
+<ul>
+<li><strong>Trace:</strong> FR-11, FR-13</li>
+<li><strong>Steps:</strong> The user picks "New", then "Group chat", enters a name and chooses members. The creator is a member. Each added person gets an "added to conversation" notification.</li>
+<li><strong>Rules:</strong> At most 20 members including the creator. At least 1 other person.</li>
+</ul>
+<h3 id="uc-04-create-a-channel-administrator">UC-04: Create a channel (administrator)</h3>
+<ul>
+<li><strong>Trace:</strong> FR-12</li>
+<li><strong>Steps:</strong> An administrator picks "New channel", enters a unique name (up to 50 characters), and chooses members. Members get an "added" notification.</li>
+<li><strong>Rules:</strong> At most 100 members. Channel names are unique, ignoring case.</li>
+<li><strong>Failures:</strong> Name already used: "A channel with that name already exists." A non-administrator gets "Not allowed."</li>
+</ul>
+<h3 id="uc-05-add-or-remove-members">UC-05: Add or remove members</h3>
+<ul>
+<li><strong>Trace:</strong> FR-13, FR-14, FR-15</li>
+<li><strong>Steps:</strong> In a group chat, any member can add members. In a channel, only an administrator can add or remove members. Any user can leave a group chat or channel. A direct message cannot change members.</li>
+<li><strong>Result:</strong> An added person sees the conversation in their list. A removed person loses the conversation immediately: it leaves their list, their open real-time connection stops receiving it, and requests for it are refused.</li>
+<li><strong>Direct messages:</strong> A direct message always keeps its two members. If one of them is deactivated (UC-17), the other keeps the history and sees "Name (former member)", and new messages to that conversation are refused with "This person is no longer a member."</li>
+<li><strong>Visibility:</strong> A person added to a channel sees all history. A person added to a group chat sees messages sent from their first join onward, except any sent while they were removed.</li>
+</ul>
+<h3 id="uc-06-send-a-message">UC-06: Send a message</h3>
+<ul>
+<li><strong>Trace:</strong> FR-20, FR-41, FR-42, FR-43, FR-44, FR-46</li>
+<li><strong>Steps:</strong> The user types text and presses Enter. The message appears at once in the list with status "Sending". The client sends it with a unique ID. When the service confirms it is stored, the status becomes "Sent" and the message takes its place in the confirmed order.</li>
+<li><strong>Failures:</strong> If sending fails (network error or a server error), the status becomes "Failed to send, retrying" and the client retries with the same ID, with increasing waits up to 5 attempts. If all attempts fail, the status shows "Not sent" with a Retry button. A retry never creates a second message.</li>
+<li><strong>Too fast:</strong> More than 30 messages in a minute: the message is not sent and the user sees "You are sending too fast. Try again in a few seconds." The message stays in the box.</li>
+<li><strong>Validation:</strong> Empty or blank text is not sent. More than 4,000 characters shows "Message is too long (limit 4,000 characters)."</li>
+</ul>
+<h3 id="uc-07-receive-a-message-in-real-time">UC-07: Receive a message in real time</h3>
+<ul>
+<li><strong>Trace:</strong> FR-40, FR-41, SLO-02, ACC-02</li>
+<li><strong>Steps:</strong> When another member sends a message, the page receives it over the real-time connection and adds it to the open conversation in order. For a conversation that is not open, its unread count goes up. The page confirms receipt to the service.</li>
+<li><strong>Result:</strong> Screen readers hear a polite announcement ("New message from Name") without moving focus.</li>
+<li><strong>Several devices:</strong> A user can be signed in on several devices or tabs at once. Each one receives every message, including the user's own messages sent from another device, in the same order. Read state belongs to the user, not to a device.</li>
+</ul>
+<h3 id="uc-08-catch-up-after-being-offline">UC-08: Catch up after being offline</h3>
+<ul>
+<li><strong>Trace:</strong> FR-45, NFR-07</li>
+<li><strong>Steps:</strong> When the page reconnects, it tells the service the last message number it has for each conversation and the server time of its last successful sync. The service replays missed messages in order, up to 50 per conversation at a time, and says whether more remain. It also returns the IDs of messages deleted since that sync time, and the page removes them from the screen. The page keeps requesting until it has everything.</li>
+<li><strong>Result:</strong> No gaps and no duplicates, and no deleted message stays on screen. The "Reconnecting" banner clears.</li>
+</ul>
+<h3 id="uc-09-reply-in-a-thread">UC-09: Reply in a thread</h3>
+<ul>
+<li><strong>Trace:</strong> FR-22</li>
+<li><strong>Steps:</strong> The user opens "Reply" on a message. The thread panel shows the original and its replies. The reply is sent like any message with a reference to the original. Replies also appear in the main message list, marked "Replying to Name".</li>
+<li><strong>Rules:</strong> A reply must be in the same conversation as the original. Replying to a reply attaches to the same original.</li>
+</ul>
+<h3 id="uc-10-mention-a-member">UC-10: Mention a member</h3>
+<ul>
+<li><strong>Trace:</strong> FR-23</li>
+<li><strong>Steps:</strong> The user types @ and a user name. The text is shown highlighted. When sent, each mentioned person who is a member of the conversation gets a mention notification.</li>
+<li><strong>Rules:</strong> Mentions of people who are not members, or of unknown names, are shown as plain text and send no notification. Up to 20 mentions are processed per message.</li>
+</ul>
+<h3 id="uc-11-attach-a-file">UC-11: Attach a file</h3>
+<ul>
+<li><strong>Trace:</strong> FR-24, SEC-08</li>
+<li><strong>Steps:</strong> The user chooses Attach and picks a file. The file uploads to the conversation. When the upload finishes it appears as a chip below the box with a Remove button. The user can add up to 5 files and send the message. Recipients see file name and size, and can open the file.</li>
+<li><strong>Rules:</strong> Up to 25 MB per file. Allowed types: png, jpg, jpeg, gif, webp, pdf, txt, md, csv, docx, xlsx, pptx. Anything else is refused. Every file is scanned before it can be opened (lab: the scan accepts all files). Only members of the conversation can open a file. A file that is never sent with a message is removed after 1 hour.</li>
+<li><strong>Failures:</strong> Too large: "File is larger than 25 MB." Wrong type: "This file type is not allowed."</li>
+</ul>
+<h3 id="uc-12-delete-my-message">UC-12: Delete my message</h3>
+<ul>
+<li><strong>Trace:</strong> FR-27, FR-28, FR-29, PRV-01, PRV-02</li>
+<li><strong>Steps:</strong> The user opens the menu on one of their own messages and chooses Delete, then confirms. The message turns into "Message deleted" for everyone at once. Replies stay under the placeholder. The message text and any attachments are removed from storage and from search.</li>
+<li><strong>Rules:</strong> Only the author can delete. There is no undo.</li>
+</ul>
+<h3 id="uc-13-search">UC-13: Search</h3>
+<ul>
+<li><strong>Trace:</strong> FR-25, PRV-02</li>
+<li><strong>Steps:</strong> The user types at least 2 characters and presses Enter. The page lists up to 50 matching messages, newest first, each with the conversation name, sender, time, and a text excerpt. Choosing a result opens that conversation at that message.</li>
+<li><strong>Rules:</strong> Only conversations the user belongs to are searched, and only the part of history the user may see (UC-05). Deleted messages never appear. A group member sees only messages from their join point onward.</li>
+<li><strong>Opening a result:</strong> The page loads the 25 messages before and the 25 after the matching message, with "Load earlier messages" and "Load later messages" buttons. This stays within the user's visible history.</li>
+</ul>
+<h3 id="uc-14-mark-a-conversation-read">UC-14: Mark a conversation read</h3>
+<ul>
+<li><strong>Trace:</strong> FR-47</li>
+<li><strong>Steps:</strong> Opening a conversation, or scrolling to the newest message, marks it read up to the newest visible message. The unread count resets to zero.</li>
+</ul>
+<h3 id="uc-15-see-notifications">UC-15: See notifications</h3>
+<ul>
+<li><strong>Trace:</strong> FR-26</li>
+<li><strong>Steps:</strong> The bell shows the number of unread notifications. Opening it lists mentions and "added to conversation" items, newest first. Choosing one opens the conversation and marks the item read.</li>
+<li><strong>Rules:</strong> See section 7.</li>
+</ul>
+<h3 id="uc-16-add-a-user-administrator">UC-16: Add a user (administrator)</h3>
+<ul>
+<li><strong>Trace:</strong> FR-03, SEC-05</li>
+<li><strong>Steps:</strong> An administrator enters a user name and a display name. The user is created and can sign in. The action is written to the audit log.</li>
+<li><strong>Rules:</strong> User names are 3 to 32 characters: lowercase letters, digits, dot, dash, and underscore. An administrator can also grant or remove the administrator role for another user. Any change that would leave fewer than two active administrators is refused.</li>
+</ul>
+<h3 id="uc-17-deactivate-a-user-administrator">UC-17: Deactivate a user (administrator)</h3>
+<ul>
+<li><strong>Trace:</strong> FR-04, FR-05, FR-14, SEC-05, SEC-09</li>
+<li><strong>Steps:</strong> An administrator chooses Deactivate for a user and confirms. The user's open real-time connections are closed at once. Every later request from that user is refused. The user is removed from all conversations. Their messages stay and show "Name (former member)". The action is written to the audit log.</li>
+<li><strong>Rules:</strong> An administrator cannot deactivate themselves. A deactivation that would leave fewer than two active administrators is refused (FR-03).</li>
+</ul>
+<h3 id="uc-18-check-service-health-and-objectives-operator">UC-18: Check service health and objectives (operator)</h3>
+<ul>
+<li><strong>Trace:</strong> OPS-01, SLO-03, SLO-04, SLO-05</li>
+<li><strong>Steps:</strong> An operator opens the health and objectives pages. The basic health check needs no sign-in, so the platform can probe it. The objectives and metrics pages are limited to administrators. The objectives page shows, for the 1-hour, 24-hour, and 28-day windows, the Success Rate and the latency at P50, P75, P90, P95, and P99, with each compared to its target. A window with too few samples shows "insufficient data".</li>
+</ul>
+<h3 id="uc-19-reconnect-after-a-dropped-connection">UC-19: Reconnect after a dropped connection</h3>
+<ul>
+<li><strong>Trace:</strong> FR-40, FR-45</li>
+<li><strong>Steps:</strong> When the real-time connection drops, the banner shows "Reconnecting". The page retries with increasing waits, up to 30 seconds apart. On success it runs the catch-up in UC-08.</li>
+</ul>
+<h3 id="uc-20-sign-out">UC-20: Sign out</h3>
+<ul>
+<li><strong>Trace:</strong> SEC-09</li>
+<li><strong>Steps:</strong> The user chooses Sign out. The page closes the real-time connection and discards the session and cached messages.</li>
+</ul>
+<h3 id="uc-21-session-expiry">UC-21: Session expiry</h3>
+<ul>
+<li><strong>Trace:</strong> SEC-09</li>
+<li><strong>Steps:</strong> After 8 hours the session is no longer accepted. The next request or reconnect fails with "Your session has expired." The page returns to the sign-in screen and keeps any unsent text.</li>
+</ul>
+<h3 id="uc-22-reach-a-conversation-the-user-is-no-longer-in">UC-22: Reach a conversation the user is no longer in</h3>
+<ul>
+<li><strong>Trace:</strong> FR-14, SEC-03</li>
+<li><strong>Steps:</strong> If a user opens a conversation they have left or been removed from, the service answers "Not found". The page removes it from the list.</li>
+</ul>
+<h2 id="4-message-states">4. Message states</h2>
+<p>States the sender sees on their own messages (FR-44):</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+<th>Next</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sending</td>
+<td>The message was handed to the service. No confirmation yet.</td>
+<td>Sent, or Failed to send</td>
+</tr>
+<tr>
+<td>Sent</td>
+<td>The service stored the message and gave it its place in the order.</td>
+<td>Deleted</td>
+</tr>
+<tr>
+<td>Failed to send, retrying</td>
+<td>An attempt failed. The client retries with the same ID.</td>
+<td>Sent, or Not sent</td>
+</tr>
+<tr>
+<td>Not sent</td>
+<td>All 5 attempts failed. The user can choose Retry.</td>
+<td>Sending</td>
+</tr>
+<tr>
+<td>Deleted</td>
+<td>The author deleted it. Text and files are gone.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p>Delivery to other people is not shown to the sender, because read receipts were not selected.</p>
+<h2 id="5-rules-limits-and-validation">5. Rules, limits, and validation</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Rule</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Message length</td>
+<td>1 to 4,000 characters after trimming</td>
+<td>A-31, FR-20</td>
+</tr>
+<tr>
+<td>Send rate</td>
+<td>30 messages per minute per user</td>
+<td>FR-46</td>
+</tr>
+<tr>
+<td>Direct message members</td>
+<td>Exactly 2</td>
+<td>FR-10</td>
+</tr>
+<tr>
+<td>Group chat members</td>
+<td>2 to 20</td>
+<td>FR-11</td>
+</tr>
+<tr>
+<td>Channel members</td>
+<td>1 to 100</td>
+<td>FR-12</td>
+</tr>
+<tr>
+<td>Channel name</td>
+<td>1 to 50 characters, unique ignoring case</td>
+<td>FR-12</td>
+</tr>
+<tr>
+<td>Group name</td>
+<td>1 to 50 characters (optional for direct messages: none)</td>
+<td>FR-11</td>
+</tr>
+<tr>
+<td>Attachment size</td>
+<td>1 byte to 25 MB</td>
+<td>FR-24</td>
+</tr>
+<tr>
+<td>Attachments per message</td>
+<td>Up to 5</td>
+<td>FR-24</td>
+</tr>
+<tr>
+<td>Allowed file types</td>
+<td>png, jpg, jpeg, gif, webp, pdf, txt, md, csv, docx, xlsx, pptx</td>
+<td>FR-24</td>
+</tr>
+<tr>
+<td>Page size</td>
+<td>50 messages per page</td>
+<td>FR-45</td>
+</tr>
+<tr>
+<td>Search query</td>
+<td>2 to 100 characters, up to 50 results</td>
+<td>FR-25</td>
+</tr>
+<tr>
+<td>User name</td>
+<td>3 to 32 characters: a-z, 0-9, dot, dash, underscore</td>
+<td>FR-03</td>
+</tr>
+<tr>
+<td>Session lifetime</td>
+<td>8 hours</td>
+<td>SEC-09</td>
+</tr>
+<tr>
+<td>Reconnect wait</td>
+<td>Doubles from 1 second up to 30 seconds</td>
+<td>UC-19</td>
+</tr>
+<tr>
+<td>Send retries</td>
+<td>5 attempts, waits 1, 2, 4, 8, 16 seconds</td>
+<td>UC-06</td>
+</tr>
+<tr>
+<td>Mentions per message</td>
+<td>Up to 20 are processed</td>
+<td>FR-23</td>
+</tr>
+<tr>
+<td>Unsent upload cleanup</td>
+<td>After 1 hour</td>
+<td>FR-24</td>
+</tr>
+<tr>
+<td>Request timeout</td>
+<td>10 seconds, after which the request counts as failed</td>
+<td>SLO-01</td>
+</tr>
+<tr>
+<td>Times</td>
+<td>Stored in UTC, shown in the user's time zone</td>
+<td>FR-30</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-message-formatting">6. Message formatting</h2>
+<ul>
+<li>The service stores the text exactly as typed. The page formats it when showing it (FR-21).</li>
+<li>Supported: <code>**bold**</code>, <code>*italic*</code>, <code>`inline code`</code>, fenced code blocks, links written as <code>[text](https://...)</code>, line breaks, and @mentions.</li>
+<li>Only <code>http</code> and <code>https</code> links are made clickable. Links open in a new tab and do not pass the page address along.</li>
+<li>Raw HTML in a message is shown as plain text. It is never run.</li>
+<li>Plain text with none of these marks shows as typed.</li>
+</ul>
+<h2 id="7-notifications">7. Notifications</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Notification record</th>
+<th>Live signal</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New message in a conversation the user is in</td>
+<td>None</td>
+<td>Unread count goes up. A polite announcement. A short on-screen alert if the conversation is not open.</td>
+<td>FR-26, ACC-02</td>
+</tr>
+<tr>
+<td>Mention</td>
+<td>Yes: "Name mentioned you in Conversation"</td>
+<td>Bell count goes up</td>
+<td>FR-23, FR-26</td>
+</tr>
+<tr>
+<td>Added to a conversation</td>
+<td>Yes: "Name added you to Conversation"</td>
+<td>Bell count goes up</td>
+<td>FR-26</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>A notification never contains message text (PRV-04, A-20). It names the sender and the conversation only.</li>
+<li>If a mentioned person has no open connection, an email notification is queued with the same wording. In the lab it is recorded and never sent (stub).</li>
+<li>Push notifications are not built. Their design is described in the architecture document.</li>
+</ul>
+<h2 id="8-errors-the-user-can-see">8. Errors the user can see</h2>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>What the user sees</th>
+<th>Service answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Not signed in or session expired</td>
+<td>"Your session has expired. Sign in again."</td>
+<td>401</td>
+</tr>
+<tr>
+<td>Not allowed (for example a non-administrator creating a channel)</td>
+<td>"You are not allowed to do that."</td>
+<td>403</td>
+</tr>
+<tr>
+<td>Conversation or message not found, or user is not a member</td>
+<td>"Not found."</td>
+<td>404</td>
+</tr>
+<tr>
+<td>Invalid input</td>
+<td>The specific problem, for example "Message is too long"</td>
+<td>400</td>
+</tr>
+<tr>
+<td>Name already taken, or member limit reached</td>
+<td>The specific problem</td>
+<td>409</td>
+</tr>
+<tr>
+<td>File too large</td>
+<td>"File is larger than 25 MB."</td>
+<td>413</td>
+</tr>
+<tr>
+<td>File type not allowed</td>
+<td>"This file type is not allowed."</td>
+<td>415</td>
+</tr>
+<tr>
+<td>Sending too fast</td>
+<td>"You are sending too fast. Try again in a few seconds."</td>
+<td>429</td>
+</tr>
+<tr>
+<td>Service problem</td>
+<td>"Something went wrong. We will try again." with a reference number the user can give to support</td>
+<td>500 and others</td>
+</tr>
+</tbody>
+</table>
+<p>The reference number is the correlation ID of the request (OPS-05). Not being a member and the conversation not existing look the same on purpose, so that nobody can find out which conversations exist.</p>
+<h2 id="9-accessibility-behavior">9. Accessibility behavior</h2>
+<table>
+<thead>
+<tr>
+<th>Behavior</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Every control can be reached and used with the keyboard. Focus order follows the visual order. The focus outline is always visible.</td>
+<td>ACC-01</td>
+</tr>
+<tr>
+<td>A "Skip to messages" link is the first item on the page.</td>
+<td>ACC-01</td>
+</tr>
+<tr>
+<td>The message list is a labeled region. New messages are announced politely by a live region and never take focus.</td>
+<td>ACC-02</td>
+</tr>
+<tr>
+<td>Each message exposes sender, time, and status as text, not only by color or position.</td>
+<td>ACC-03</td>
+</tr>
+<tr>
+<td>Mentions are marked with text and style, not color alone.</td>
+<td>ACC-03</td>
+</tr>
+<tr>
+<td>The thread panel, search results, and notification list are labeled regions, and opening them moves focus to their heading. Closing them returns focus to the button that opened them.</td>
+<td>ACC-03</td>
+</tr>
+<tr>
+<td>Colors meet the AA contrast ratio. Text can be enlarged to 200 percent without loss.</td>
+<td>ACC-01</td>
+</tr>
+<tr>
+<td>Buttons and fields have text labels. Icons never stand alone without a label.</td>
+<td>ACC-03</td>
+</tr>
+<tr>
+<td>Error messages are announced when they appear.</td>
+<td>ACC-02</td>
+</tr>
+</tbody>
+</table>
+<h2 id="10-not-specified">10. Not specified</h2>
+<ul>
+<li>Typing indicators, online presence, read receipts, message editing, voice, video, and bots are not built (see the requirements, section 9).</li>
+<li>Email and push delivery are stubs or designs only.</li>
+<li>Exact visual design, wording translations, and languages other than English are not specified.</li>
+</ul></main></div>
+<footer>Lab build, not production software. Generated from the markdown documents in the repository by tools/build_site.py.</footer>
+</body></html>
